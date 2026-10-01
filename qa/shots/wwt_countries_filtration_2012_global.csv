@@ -1,0 +1,223 @@
+﻿# UNCTAD Wastewater Treatment Technology: Trade & Tariff Monitor
+# Goods: Filtration & purification (2 HS codes) | Year: 2012 | Scope: Global
+# Trade: UN Comtrade, importer-reported values (exporter mirror where missing), current USD
+iso3,economy,region,development_status,ldc,sids,pct_without_safe_water,mfn_tariff_pct,mfn_year,applied_tariff_pct,applied_year,imports_2012_usd,est_duty_ahs_2012_usd,exports_2012_usd
+ABW,Aruba,,Developing,0,1,,12.00,2021,12.00,2021,3310478,397257,609119
+AFG,Afghanistan,Asia,Developing,1,0,69.5,3.75,2018,,,14215260,,12765
+AGO,Angola,Africa,Developing,1,0,,0.00,2023,0.00,2023,77195831,0,307518
+AIA,Anguilla,,Developing,0,0,,15.00,2021,15.00,2021,294142,44121,0
+ALB,Albania,Europe,Developed,0,0,29.2,0.00,2023,0.00,2023,1753986,0,133434
+AND,Andorra,,Developing,0,0,9.4,,,,,305070,,205791
+ARE,United Arab Emirates,Asia,Developing,0,0,1.4,5.00,2023,4.20,2023,293616827,12491896,146422089
+ARG,Argentina,Americas,Developing,0,0,,9.00,2023,7.92,2023,102312257,5065737,36930292
+ARM,Armenia,Asia,Developing,0,0,17.9,0.00,2023,0.00,2023,2706809,0,103524
+ASM,American Samoa,,Developing,0,0,9.5,,,,,452092,,793
+ATG,Antigua and Barbuda,,Developing,0,1,,5.00,2021,4.85,2021,251707,11955,980613
+AUS,Australia,Oceania,Developed,0,0,,3.75,2023,2.63,2023,336064543,8882487,91578618
+AUT,Austria,Europe,Developed,0,0,1.1,1.27,2023,0.54,2023,244789255,169345,361930384
+AZE,Azerbaijan,Asia,Developing,0,0,42.2,7.50,2023,7.03,2023,28142627,2357543,57700
+BDI,Burundi,Africa,Developing,1,0,,5.00,2023,4.29,2023,2681722,19655,19481
+BEL,Belgium,Europe,Developed,0,0,0.5,1.27,2023,0.60,2023,321842014,536066,292089320
+BEN,Benin,Africa,Developing,1,0,82.3,5.00,2023,4.54,2023,615863,27180,32076
+BES,Bonaire,,Developing,0,0,0,,,,,0,,0
+BFA,Burkina Faso,Africa,Developing,1,0,,5.00,2023,4.66,2023,4150045,193473,44224
+BGD,Bangladesh,Asia,Developing,1,0,40.9,5.07,2023,5.04,2023,42335246,3539156,2567676
+BGR,Bulgaria,Europe,Developed,0,0,3.8,1.27,2023,0.70,2023,24374237,60758,13416842
+BHR,Bahrain,Asia,Developing,0,0,1.1,5.00,2023,4.10,2023,26403722,1083736,1318714
+BHS,Bahamas,Americas,Developing,0,1,,45.00,2022,45.00,2022,6788128,3054658,50036
+BIH,Bosnia and Herzegovina,Europe,Developed,0,0,13.6,7.50,2022,3.50,2022,10226221,460585,13248839
+BLR,Belarus,Europe,Developed,0,0,6.9,0.00,2021,0.00,2021,54317330,0,12128543
+BLZ,Belize,Americas,Developing,0,1,,5.00,2023,3.76,2023,755792,29274,69718
+BMU,Bermuda,,Developing,0,1,,6.25,2023,6.25,2023,1554437,62632,0
+BOL,Bolivia (Plurinational State of),Americas,Developing,0,0,,10.00,2023,8.76,2023,12269738,1074870,71110
+BRA,Brazil,Americas,Developing,0,0,11.4,10.50,2023,9.14,2023,288908743,22458628,87624042
+BRB,Barbados,Americas,Developing,0,1,,5.00,2022,2.31,2022,1694230,37336,259685
+BRN,Brunei Darussalam,Asia,Developing,0,0,,0.00,2023,0.00,2023,10260477,0,452136
+BTN,Bhutan,Asia,Developing,0,0,34.4,10.00,2022,8.38,2022,786500,64053,3006
+BWA,Botswana,Africa,Developing,0,0,36.7,3.75,2023,3.60,2023,7637965,330090,761556
+CAF,Central African Republic,Africa,Developing,1,0,93.8,10.00,2023,10.00,2023,130213,13021,29353
+CAN,Canada,Americas,Developed,0,0,3.1,0.00,2023,0.00,2023,652335512,0,567275811
+CHE,Switzerland,Europe,Developed,0,0,3.3,0.00,2023,0.00,2023,220659266,0,278194012
+CHL,Chile,Americas,Developing,0,0,2.2,6.00,2023,1.44,2023,128510013,1871340,11800811
+CHN,China,Asia,Developing,0,0,,4.70,2023,3.77,2023,1257557114,43841366,1716959874
+CIV,Côte d'Ivoire,Africa,Developing,0,0,63.5,5.00,2023,4.67,2023,12170700,563446,13411
+CMR,Cameroon,Africa,Developing,0,0,,10.00,2023,10.00,2023,6841825,684183,35573
+COD,Dem. Rep. of the Congo,Africa,Developing,1,0,88.1,15.00,2020,15.00,2020,14808922,2447355,3220
+COG,Congo,Africa,Developing,0,0,54.1,10.00,2023,9.81,2023,7743011,750766,255394
+COK,Cook Islands,,Developing,0,0,,0.00,2022,0.00,2022,84609,0,760
+COL,Colombia,Americas,Developing,0,0,25.7,5.00,2023,1.81,2023,56589398,904393,6147960
+COM,Comoros,Africa,Developing,1,1,,20.00,2021,20.00,2021,72678,14536,0
+CPV,Cabo Verde,,Developing,0,1,,2.50,2023,2.34,2023,1398325,27481,7283
+CRI,Costa Rica,Americas,Developing,0,0,19.5,0.00,2023,0.00,2023,10767470,0,1241667
+CUB,Cuba,Americas,Developing,0,1,,10.00,2023,8.94,2023,17958200,1633700,20017
+CYM,Cayman Islands,,Developing,0,1,,22.00,2021,22.00,2021,1055831,232283,18839
+CYP,Cyprus,Asia,Developed,0,0,0.3,1.27,2023,0.66,2023,13135062,60707,6997568
+CZE,Czechia,Europe,Developed,0,0,1.9,1.27,2023,0.56,2023,184073381,311179,210927344
+DEU,Germany,Europe,Developed,0,0,0.1,1.27,2023,0.55,2023,1010191750,1933029,2870313119
+DJI,Djibouti,Africa,Developing,1,0,,21.50,2014,21.50,2014,3885764,720361,3789
+DMA,Dominica,,Developing,0,1,,0.00,2023,0.00,2023,144120,0,595573
+DNK,Denmark,Europe,Developed,0,0,0.1,1.27,2023,0.53,2023,135860677,122466,154128505
+DOM,Dominican Republic,Americas,Developing,0,1,54.7,0.00,2023,0.00,2023,10735868,0,514291
+DZA,Algeria,Africa,Developing,0,0,31,17.50,2023,7.41,2023,122767941,5186113,696345
+ECU,Ecuador,Americas,Developing,0,0,30.1,4.58,2023,3.13,2023,31425499,975987,820116
+EGY,Egypt,Africa,Developing,0,0,21.1,7.50,2019,2.91,2019,58412608,1752345,973849
+ERI,Eritrea,Africa,Developing,1,0,,2.00,2006,2.00,2006,740126,14803,3319
+ESP,Spain,Europe,Developed,0,0,0.5,1.27,2023,0.47,2023,317639684,571582,346277711
+EST,Estonia,Europe,Developed,0,0,1.1,1.27,2023,0.65,2023,12558512,24899,11244951
+ETH,Ethiopia,Africa,Developing,1,0,86.5,17.50,2021,17.42,2021,6108883,1317526,55301
+FIN,Finland,Europe,Developed,0,0,0.3,1.27,2023,0.58,2023,82672684,97556,132039739
+FJI,Fiji,Oceania,Developing,0,1,57.9,0.00,2023,0.00,2023,1280608,0,13001
+FRA,France,Europe,Developed,0,0,0.3,1.27,2023,0.40,2023,804471815,1175464,803669512
+GAB,Gabon,Africa,Developing,0,0,,10.00,2023,10.00,2023,10487743,1048774,226348
+GBR,United Kingdom,Europe,Developed,0,0,0.2,0.00,2023,0.00,2023,491153415,0,807774878
+GEO,Georgia,Asia,Developing,0,0,29.5,0.00,2022,0.00,2022,7223267,0,1224464
+GHA,Ghana,Africa,Developing,0,0,57.1,5.00,2023,4.94,2023,30486888,1516227,319777
+GIB,Gibraltar,,Developing,0,0,0,,,,,244834,,11561
+GIN,Guinea,Africa,Developing,1,0,,5.00,2023,4.82,2023,4367716,210365,80216
+GLP,Guadeloupe,,Developing,0,0,3.3,,,,,0,,0
+GMB,Gambia,Africa,Developing,1,0,51.8,5.00,2023,4.39,2023,104683,4638,22792
+GNB,Guinea-Bissau,Africa,Developing,1,1,76,5.00,2023,5.00,2023,22422,1121,0
+GNQ,Equatorial Guinea,Africa,Developing,0,0,,10.00,2023,10.00,2023,7743596,774360,15400
+GRC,Greece,Europe,Developed,0,0,3.3,1.27,2023,0.66,2023,35191054,60837,6563389
+GRD,Grenada,Americas,Developing,0,1,10.1,5.00,2023,2.73,2023,214376,5826,462
+GTM,Guatemala,Americas,Developing,0,0,51.2,0.00,2023,0.00,2023,23065770,0,1024501
+GUF,French Guiana,,Developing,0,0,7.8,,,,,0,,0
+GUM,Guam,,Developing,0,0,6,,,,,225113,,2143
+GUY,Guyana,Americas,Developing,0,1,32.8,2.50,2023,1.44,2023,848960,9359,209
+HKG,"China, Hong Kong SAR",Asia,Developing,0,0,,0.00,2023,0.00,2023,191851494,0,30686738
+HND,Honduras,Americas,Developing,0,0,34.5,0.00,2023,0.00,2023,4695591,0,109246
+HRV,Croatia,Europe,Developed,0,0,12.7,1.27,2023,0.60,2023,20194385,18265,4067938
+HTI,Haiti,Americas,Developing,1,1,,5.00,2020,5.00,2020,2656729,132836,5378
+HUN,Hungary,Europe,Developed,0,0,0,1.27,2023,0.70,2023,84227086,140176,183237380
+IDN,Indonesia,Asia,Developing,0,0,69.5,4.38,2023,3.38,2023,235858711,7834369,35796690
+IMN,Isle of Man,,Developing,0,0,0.1,,,,,0,,0
+IND,India,Asia,Developing,0,0,23.6,9.16,2023,7.66,2023,342713250,27271029,266635436
+IRL,Ireland,Europe,Developed,0,0,3.9,1.27,2023,0.55,2023,98944448,342704,139638533
+IRN,Iran (Islamic Republic of),Asia,Developing,0,0,5.6,12.50,2020,12.50,2020,137757310,18054556,1121958
+IRQ,Iraq,Asia,Developing,0,0,40.2,,,,,142286868,,11557
+ISL,Iceland,Europe,Developed,0,0,0,0.00,2023,0.00,2023,3628825,0,277429
+ISR,Israel,Asia,Developed,0,0,0.5,3.87,2022,3.71,2022,192933768,6791828,153912115
+ITA,Italy,Europe,Developed,0,0,3.2,1.27,2023,0.55,2023,388904132,617254,834565664
+JAM,Jamaica,Americas,Developing,0,1,,0.00,2023,0.00,2023,4534378,0,36720
+JOR,Jordan,Asia,Developing,0,0,11,4.17,2023,1.33,2023,21860731,342224,3379173
+JPN,Japan,Asia,Developed,0,0,1.3,0.00,2023,0.00,2023,584419224,0,1152152008
+KAZ,Kazakhstan,Asia,Developing,0,0,8.5,0.00,2023,0.00,2023,78414376,0,659030
+KEN,Kenya,Africa,Developing,0,0,,5.00,2023,5.00,2023,17131878,665540,867493
+KGZ,Kyrgyzstan,Asia,Developing,0,0,26.1,0.00,2021,0.00,2021,4119172,0,166510
+KHM,Cambodia,Asia,Developing,1,0,70,11.00,2023,8.65,2023,4929199,417164,37888
+KIR,Kiribati,,Developing,1,1,84.9,,,,,128138,,0
+KNA,Saint Kitts and Nevis,,Developing,0,1,,5.00,2023,5.00,2023,193613,9681,7938
+KOR,Republic of Korea,Asia,Developed,0,0,0.7,5.38,2023,1.44,2023,437810765,6195619,663804749
+KWT,Kuwait,Asia,Developing,0,0,0,5.00,2023,4.21,2023,40217287,1695198,262547
+LAO,Lao People's Dem. Rep.,Asia,Developing,1,0,64.8,5.00,2023,2.27,2023,3336227,75924,8163
+LBN,Lebanon,Asia,Developing,0,0,52.3,3.75,2020,1.61,2020,11177806,197436,5701846
+LBR,Liberia,Africa,Developing,1,0,,5.00,2023,4.75,2023,1436940,68330,0
+LBY,Libya,Africa,Developing,0,0,,5.00,2021,4.67,2021,31283731,1444154,70
+LCA,Saint Lucia,,Developing,0,1,,0.00,2023,0.00,2023,704141,0,32866
+LIE,Liechtenstein,,Developing,0,0,0,0.00,2021,,,0,,0
+LKA,Sri Lanka,Asia,Developing,0,0,53.1,15.00,2023,14.57,2023,22240948,3528955,422686
+LSO,Lesotho,Africa,Developing,1,0,68.7,3.75,2023,3.21,2023,389044,1530,1287
+LTU,Lithuania,Europe,Developed,0,0,3.3,1.27,2023,0.53,2023,26404674,15249,20028241
+LUX,Luxembourg,Europe,Developed,0,0,0.3,1.27,2023,0.54,2023,16969403,7727,15839321
+LVA,Latvia,Europe,Developed,0,0,3,1.27,2023,0.62,2023,14215079,22394,14019128
+MAC,"China, Macao SAR",,Developing,0,0,,0.00,2023,0.00,2023,1981625,0,131111
+MAR,Morocco,Africa,Developing,0,0,20,10.94,2023,4.31,2023,64030185,1396670,1602830
+MCO,Monaco,,Developing,0,0,0,,,,,0,,0
+MDA,Republic of Moldova,Europe,Developed,0,0,24.2,10.00,2023,3.81,2023,5039231,187814,296951
+MDG,Madagascar,Africa,Developing,1,0,77.9,7.50,2023,5.38,2023,1805054,103858,16796
+MDV,Maldives,Asia,Developing,0,1,,17.50,2023,17.04,2023,5793345,926801,15774
+MEX,Mexico,Americas,Developing,0,0,57,0.63,2023,0.23,2023,405625640,852620,303531566
+MKD,North Macedonia,Europe,Developed,0,0,19.2,0.00,2023,0.00,2023,26102586,0,161181
+MLI,Mali,Africa,Developing,1,0,,5.00,2023,4.92,2023,4198570,207122,119413
+MLT,Malta,Europe,Developed,0,0,0.2,1.27,2023,0.69,2023,3590725,10198,3218429
+MMR,Myanmar,Asia,Developing,1,0,40.3,4.77,2023,3.15,2023,9703013,301155,81452
+MNE,Montenegro,Europe,Developed,0,0,14.5,0.00,2023,0.00,2023,1506751,0,46709
+MNG,Mongolia,Asia,Developing,0,0,56.6,5.00,2023,4.87,2023,12740101,620292,264
+MNP,Northern Mariana Islands,,Developing,0,0,18.5,,,,,10223,,148
+MOZ,Mozambique,Africa,Developing,1,0,72.5,5.00,2023,4.83,2023,7779819,374015,267049
+MRT,Mauritania,Africa,Developing,1,0,,5.00,2023,5.00,2023,5558077,277904,92
+MSR,Montserrat,,Developing,0,1,,10.00,2023,9.16,2023,24830,1421,628
+MTQ,Martinique,,Developing,0,0,1,,,,,0,,0
+MUS,Mauritius,Africa,Developing,0,1,,0.00,2023,0.00,2023,4864489,0,757932
+MWI,Malawi,Africa,Developing,1,0,81.8,7.50,2021,6.74,2021,1507549,80677,2282
+MYS,Malaysia,Asia,Developing,0,0,5.3,1.25,2023,1.25,2023,244901549,3335471,194020149
+MYT,Mayotte,,Developing,0,0,7.5,10.00,2013,3.54,2013,871154,30030,7287
+NAM,Namibia,Africa,Developing,0,0,,3.75,2023,3.44,2023,3951447,97939,1490489
+NCL,New Caledonia,Oceania,Developing,0,1,3.1,,,,,11457918,,38285
+NER,Niger,Africa,Developing,1,0,,5.00,2023,4.67,2023,1140468,53275,15976
+NGA,Nigeria,Africa,Developing,0,0,70.1,5.00,2023,4.96,2023,53310265,2646446,782395
+NIC,Nicaragua,Americas,Developing,0,0,,0.00,2023,0.00,2023,2690646,0,1540990
+NIU,Niue,,Developing,0,0,7,,,,,1013,,13544
+NLD,Netherlands (Kingdom of the),Europe,Developed,0,0,0,1.27,2023,0.56,2023,325173077,535593,391032021
+NOR,Norway,Europe,Developed,0,0,0.9,0.00,2023,0.00,2023,129936019,0,40267394
+NPL,Nepal,Asia,Developing,1,0,83.5,5.00,2023,5.00,2023,3339481,166974,13242
+NRU,Nauru,,Developing,0,0,81.3,10.00,2021,10.00,2021,802388,80239,0
+NZL,New Zealand,Oceania,Developed,0,0,0,3.75,2023,2.50,2023,38941047,924102,8569473
+OMN,Oman,Asia,Developing,0,0,8.9,5.00,2023,3.99,2023,36608402,1458632,439292
+PAK,Pakistan,Asia,Developing,0,0,55,13.00,2023,12.93,2023,59810635,9253459,1870918
+PAN,Panama,Americas,Developing,0,0,,0.00,2023,0.00,2023,9300430,0,4573600
+PER,Peru,Americas,Developing,0,0,50.6,0.00,2023,0.00,2023,136660903,0,2193820
+PHL,Philippines,Asia,Developing,0,0,51.5,2.71,2023,2.04,2023,48298033,643998,60027879
+PLW,Palau,,Developing,0,1,9.2,3.00,2023,3.00,2023,54492,1635,0
+PNG,Papua New Guinea,Oceania,Developing,0,1,,0.00,2023,0.00,2023,15918027,0,105281
+POL,Poland,Europe,Developed,0,0,11.3,1.27,2023,0.51,2023,275108442,250819,124261788
+PRI,Puerto Rico,Americas,Developing,0,0,1.1,,,,,0,,0
+PRK,Dem. People's Rep. of Korea,Asia,Developing,0,0,33.4,,,,,1279375,,1903275
+PRT,Portugal,Europe,Developed,0,0,4.8,1.27,2023,0.54,2023,54341491,26245,21115300
+PRY,Paraguay,Americas,Developing,0,0,35.6,0.25,2023,0.21,2023,11656488,17968,98856
+PSE,State of Palestine,,Developing,0,0,19.4,4.42,2017,0.46,2017,1216658,4756,2500
+PYF,French Polynesia,,Developing,0,1,9.5,10.00,2023,7.46,2023,2269347,152096,11357
+QAT,Qatar,Asia,Developing,0,0,4.7,5.00,2023,4.46,2023,44700603,1987493,166459
+REU,Réunion,,Developing,0,0,4.3,,,,,0,,0
+ROU,Romania,Europe,Developed,0,0,17.8,1.27,2023,0.56,2023,99831957,99421,24376719
+RUS,Russian Federation,Europe,Developed,0,0,23.7,0.00,2021,0.00,2021,614399741,0,62365994
+RWA,Rwanda,Africa,Developing,1,0,,5.00,2023,4.33,2023,9882821,598074,1
+SAU,Saudi Arabia,Asia,Developing,0,0,,5.00,2023,5.00,2023,332389170,16619458,8541694
+SDN,Sudan,Africa,Developing,1,0,,5.00,2021,3.87,2021,14225691,201426,28030
+SEN,Senegal,Africa,Developing,1,0,72.8,5.00,2023,4.80,2023,6176099,296441,407360
+SGP,Singapore,Asia,Developing,0,1,0,0.00,2023,0.00,2023,355115831,0,161532456
+SHN,Saint Helena,,Developing,0,0,1.6,,,,,177,,0
+SLB,Solomon Islands,Oceania,Developing,1,1,,10.00,2023,10.00,2023,310369,31037,0
+SLE,Sierra Leone,Africa,Developing,1,0,89.1,5.00,2023,4.87,2023,2775276,134062,48452
+SLV,El Salvador,Americas,Developing,0,0,,0.00,2022,0.00,2022,4061353,0,206180
+SMR,San Marino,,Developing,0,0,0,,,,,46145,,92814
+SPM,Saint Pierre and Miquelon,,Developing,0,0,4,2.50,2021,0.00,2021,34395,0,0
+SRB,Serbia,Europe,Developed,0,0,25,,,,,24558696,,3942805
+STP,Sao Tome and Principe,,Developing,0,1,63.3,10.00,2019,10.00,2019,50771,5077,31
+SUR,Suriname,Americas,Developing,0,1,44.1,5.00,2023,4.88,2023,4910025,244603,9635
+SVK,Slovakia,Europe,Developed,0,0,0.4,1.27,2023,0.64,2023,37899847,37126,62936462
+SVN,Slovenia,Europe,Developed,0,0,0.4,1.27,2023,0.57,2023,26320232,24150,35388913
+SWE,Sweden,Europe,Developed,0,0,0.2,1.27,2023,0.53,2023,213986698,198387,284500976
+SWZ,Eswatini,Africa,Developing,0,0,61.8,3.75,2023,3.57,2023,2648490,61675,369574
+SYC,Seychelles,,Developing,0,1,35.3,0.00,2023,0.00,2023,8280487,0,16059
+SYR,Syrian Arab Republic,Asia,Developing,0,0,,6.25,2020,5.63,2020,4830287,262085,172155
+TCA,Turks and Caicos Islands,,Developing,0,1,53,,,,,231697,,2261
+TCD,Chad,Africa,Developing,1,0,93.7,10.00,2023,10.00,2023,3072044,307204,16505
+TGO,Togo,Africa,Developing,1,0,79.5,5.00,2023,4.73,2023,1368228,66140,11794
+THA,Thailand,Asia,Developing,0,0,,3.96,2023,3.00,2023,260699856,9106044,132851338
+TJK,Tajikistan,Asia,Developing,0,0,34.9,3.75,2021,3.13,2021,1460131,44466,67081
+TKM,Turkmenistan,Asia,Developing,0,0,5.2,0.00,2002,0.00,2002,37742093,0,0
+TLS,Timor-Leste,Asia,Developing,1,1,,2.50,2021,2.50,2021,103578,2589,0
+TON,Tonga,,Developing,0,1,70.4,9.00,2023,9.00,2023,68841,4679,58
+TTO,Trinidad and Tobago,Americas,Developing,0,1,30.6,0.00,2023,0.00,2023,15706360,0,825618
+TUN,Tunisia,Africa,Developing,0,0,35,0.00,2016,0.00,2016,45036630,0,7834301
+TUR,Türkiye,Asia,Developing,0,0,,14.20,2023,4.54,2023,171917017,7534485,101510746
+TUV,Tuvalu,,Developing,0,0,91.3,0.00,2017,0.00,2017,1064213,0,0
+TWN,"China, Taiwan Province of",Asia,Developing,0,0,,2.85,2023,2.73,2023,309005095,6665230,368727531
+TZA,United Republic of Tanzania,Africa,Developing,1,0,68.7,5.00,2023,4.54,2023,10559092,311878,775703
+UGA,Uganda,Africa,Developing,1,0,81.9,5.00,2023,4.63,2023,17684555,71676,191734
+UKR,Ukraine,Europe,Developed,0,0,12.1,0.00,2023,0.00,2023,74295129,0,19829535
+URY,Uruguay,Americas,Developing,0,0,,0.67,2023,0.58,2023,10874644,88518,4544625
+USA,United States,Americas,Developed,0,0,2.4,0.00,2023,0.00,2023,2147772004,0,3147633596
+UZB,Uzbekistan,Asia,Developing,0,0,18.1,0.00,2021,0.00,2021,9611859,0,76700
+VCT,Saint Vincent and the Grenadines,,Developing,0,1,,5.00,2023,3.27,2023,473436,18921,38025
+VEN,Venezuela (Bolivarian Rep. of),Americas,Developing,0,0,,10.50,2023,8.09,2023,154707400,14488107,386057
+VIR,"Virgin Islands, U.S.",,Developing,0,0,1.3,,,,,0,,0
+VNM,Viet Nam,Asia,Developing,0,0,41.4,2.50,2023,1.14,2023,95719439,1036793,23633246
+VUT,Vanuatu,Oceania,Developing,0,1,80.8,0.00,2023,0.00,2023,75784,0,0
+WLF,Wallis and Futuna Islands,,Developing,0,0,31.1,10.00,2021,5.00,2021,2559,128,0
+WSM,Samoa,,Developing,0,1,37.5,8.00,2020,8.00,2020,255922,20474,17423
+YEM,Yemen,Asia,Developing,1,0,,5.00,2017,5.00,2017,3265816,163291,31020
+ZAF,South Africa,Africa,Developing,0,0,32,3.75,2023,3.30,2023,160040548,7542276,149422335
+ZMB,Zambia,Africa,Developing,1,0,,15.00,2023,13.44,2023,14893001,1993329,186562
+ZWE,Zimbabwe,Africa,Developing,0,0,74.5,0.00,2023,0.00,2023,10104858,0,98317

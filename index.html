@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wastewater Treatment Technology: Trade &amp; Tariff Monitor</title>
+    <meta name="description" content="UNCTAD dashboard: trade in water and wastewater treatment technology, applied tariffs and the population without safely managed drinking water.">
+    <link rel="icon" href="assets/unctad-icon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ── UNCTAD Header ── -->
+    <header id="main-header">
+        <div class="header-inner">
+            <div class="header-title">
+                <img src="assets/unctad-icon.svg" alt="UNCTAD" class="header-logo">
+                <div class="header-text">
+                    <h3>Wastewater Treatment Technology: Trade &amp; Tariff Monitor</h3>
+                    <h4>UNCTAD &middot; Where safe water is scarcest, the tools to treat it face the highest tariffs &middot; Sources: UN&nbsp;Comtrade, WITS/TRAINS, WHO/UNICEF&nbsp;JMP</h4>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <div class="ctrl-pill" id="view-group" title="Bivariate map (need × tariff classes, top-down) or 3D tariff walls">
+                    <span class="ctrl-flows-label">Map</span>
+                    <button class="view-btn btn-toggle" data-view="biv">Need × tariff</button>
+                    <button class="view-btn btn-toggle active" data-view="3d">3D</button>
+                </div>
+
+                <div class="ctrl-divider"></div>
+
+                <div class="ctrl-pill" id="region-group">
+                    <button class="region-btn btn-toggle active" data-region="Global">All</button>
+                    <button class="region-btn btn-toggle" data-region="Africa">Africa</button>
+                    <button class="region-btn btn-toggle" data-region="Americas">Americas</button>
+                    <button class="region-btn btn-toggle" data-region="Asia">Asia</button>
+                    <button class="region-btn btn-toggle" data-region="Europe">Europe</button>
+                    <button class="region-btn btn-toggle" data-region="Oceania">Oceania</button>
+                </div>
+
+                <div class="ctrl-divider"></div>
+
+                <div class="ctrl-pill" title="Trade year (tariffs and water data are the latest available)">
+                    <select id="year-select" class="ctrl-year" aria-label="Trade year"></select>
+                </div>
+
+                <div class="ctrl-pill ctrl-product" title="Products: all 16 WWT-related HS codes, a technology group, or a single HS code">
+                    <span class="ctrl-flows-label">Goods</span>
+                    <select id="product-select" class="ctrl-year ctrl-product-select" aria-label="Products"></select>
+                </div>
+
+                <div class="ctrl-pill" id="duty-group" title="Tariff measure shown by the wall height">
+                    <span class="ctrl-flows-label">Tariff</span>
+                    <button class="duty-btn btn-toggle active" data-duty="MFN" title="Most-favoured-nation applied rate">MFN</button>
+                    <button class="duty-btn btn-toggle" data-duty="AHS" title="Effectively applied rate, including preferences">Applied</button>
+                </div>
+
+                <div class="ctrl-divider"></div>
+
+                <div class="ctrl-pill" id="flowview-group" title="What to draw: importer circles only (hover an economy for its suppliers), the 15 largest duty corridors into the highest-need economies, corridors grouped by importing region, or all corridors">
+                    <span class="ctrl-flows-label">Show</span>
+                    <button class="flowview-btn btn-toggle active" data-flowview="importers">Importers</button>
+                    <button class="flowview-btn btn-toggle" data-flowview="top" title="15 largest duty corridors into the highest-need economies">Top 15</button>
+                    <button class="flowview-btn btn-toggle" data-flowview="region" title="Supplier → importing region">Regions</button>
+                    <button class="flowview-btn btn-toggle" data-flowview="all">All</button>
+                </div>
+
+                <div class="ctrl-pill" id="metric-group" title="Circle size and arc width: estimated import duties paid, or the trade value">
+                    <span class="ctrl-flows-label">Size</span>
+                    <button class="metric-btn btn-toggle active" data-metric="duty">Duties</button>
+                    <button class="metric-btn btn-toggle" data-metric="value">Trade</button>
+                </div>
+
+                <div class="ctrl-pill" id="arccolor-group" title="Arc colour: effective duty rate on the corridor (duties ÷ trade value), or North/South category">
+                    <span class="ctrl-flows-label">Colour</span>
+                    <button class="arccolor-btn btn-toggle active" data-arccolor="rate">Rate</button>
+                    <button class="arccolor-btn btn-toggle" data-arccolor="ns">N/S</button>
+                </div>
+
+                <div class="ctrl-pill" id="flow-filter-group" title="Filter by economic flow direction">
+                    <span class="ctrl-flows-label">Flows</span>
+                    <label class="flow-label flow-ns" title="Trade from developed to developing economies">
+                        <input type="checkbox" class="flow-checkbox" value="north-south" checked><span>N&rarr;S</span>
+                    </label>
+                    <label class="flow-label flow-sn" title="Trade from developing to developed economies">
+                        <input type="checkbox" class="flow-checkbox" value="south-north" checked><span>S&rarr;N</span>
+                    </label>
+                    <label class="flow-label flow-ss" title="Trade between developing economies">
+                        <input type="checkbox" class="flow-checkbox" value="south-south" checked><span>S&rarr;S</span>
+                    </label>
+                    <label class="flow-label flow-nn" title="Trade between developed economies">
+                        <input type="checkbox" class="flow-checkbox" value="north-north" checked><span>N&rarr;N</span>
+                    </label>
+                </div>
+
+                <div class="ctrl-pill" id="need-group" title="Show all importers, or only economies in the highest-need quarter (share of population without safely managed drinking water)">
+                    <span class="ctrl-flows-label">Importers</span>
+                    <button class="need-btn btn-toggle active" data-need="all">All</button>
+                    <button class="need-btn btn-toggle" data-need="high">High need</button>
+                </div>
+
+                <div class="ctrl-pill" id="threshold-group" title="Minimum trade flow shown as an arc">
+                    <button class="threshold-btn btn-toggle active" data-threshold="auto">Auto</button>
+                    <button class="threshold-btn btn-toggle" data-threshold="100000000">$100M</button>
+                    <button class="threshold-btn btn-toggle" data-threshold="10000000">$10M</button>
+                    <button class="threshold-btn btn-toggle" data-threshold="1000000">$1M</button>
+                    <button class="threshold-btn btn-toggle" data-threshold="100000">$100k</button>
+                </div>
+
+                <div class="ctrl-divider"></div>
+
+                <div class="picker-wrapper">
+                    <button id="exp-btn" class="country-picker-btn">
+                        <div class="picker-labels">
+                            <span class="picker-type">Exporter (From)</span>
+                            <span id="exp-label" class="picker-value">All Exporters</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:4px">
+                            <span id="exp-count" class="picker-badge hidden"></span>
+                            <svg class="picker-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                    </button>
+                    <div id="exp-menu" class="country-picker-menu hidden">
+                        <div class="picker-search-area">
+                            <input type="text" id="exp-search" placeholder="Search Exporter...">
+                            <button id="exp-clear-all" class="picker-clear">Clear</button>
+                        </div>
+                        <div id="exp-list" class="picker-list"></div>
+                    </div>
+                </div>
+
+                <div class="picker-wrapper">
+                    <button id="imp-btn" class="country-picker-btn">
+                        <div class="picker-labels">
+                            <span class="picker-type">Importer (To)</span>
+                            <span id="imp-label" class="picker-value">All Importers</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:4px">
+                            <span id="imp-count" class="picker-badge hidden" style="background:#b45309"></span>
+                            <svg class="picker-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                    </button>
+                    <div id="imp-menu" class="country-picker-menu hidden">
+                        <div class="picker-search-area">
+                            <input type="text" id="imp-search" placeholder="Search Importer...">
+                            <button id="imp-clear-all" class="picker-clear">Clear</button>
+                        </div>
+                        <div id="imp-list" class="picker-list"></div>
+                    </div>
+                </div>
+
+                <div class="ctrl-divider"></div>
+
+                <div class="picker-wrapper" id="export-wrapper">
+                    <button id="export-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Download the current view as CSV">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Export
+                    </button>
+                    <div id="export-menu" class="hidden" role="menu">
+                        <div class="export-menu-hdr"><span>Current view</span><span id="export-scope" class="export-scope">—</span></div>
+                        <button class="export-opt" data-export="flows" role="menuitem">
+                            <span class="export-opt-title">Trade flows</span>
+                            <span class="export-opt-sub">One row per corridor in scope · USD</span>
+                        </button>
+                        <button class="export-opt" data-export="countries" role="menuitem">
+                            <span class="export-opt-title">Country indicators</span>
+                            <span class="export-opt-sub">Water access, MFN &amp; applied tariffs, imports, exports</span>
+                        </button>
+                        <button class="export-opt" data-export="png" role="menuitem">
+                            <span class="export-opt-title">Map image (PNG)</span>
+                            <span class="export-opt-sub">Current view with title, legend and sources</span>
+                        </button>
+                        <div class="export-menu-foot">The arc display threshold is not applied to CSV exports.</div>
+                    </div>
+                </div>
+
+                <button id="anim-btn" title="Play trade flows 2010–2024">&#9654; Animate</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Legend Bar ── -->
+    <div id="legend-panel">
+        <div class="legend-mobile-header">
+            <span>Legend</span>
+            <button id="mobile-legend-close" class="btn-close" aria-label="Close legend">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="legend-content"></div>
+        <div id="total-stats">
+            <div class="stat-row"><span class="stat-label">Shown</span><span class="stat-val" id="stat-value">—</span></div>
+            <div class="stat-row"><span class="stat-label">In scope</span><span class="stat-secondary" id="stat-bilateral">—</span></div>
+            <span id="stat-coverage"></span>
+        </div>
+    </div>
+
+    <!-- ── KPI Bar ── -->
+    <div id="kpi-bar">
+        <div class="kpi-inner">
+            <div class="kpi-item" title="Active filter"><span class="kpi-label">Filter</span><span class="kpi-value" id="kpi-scope">Global</span></div>
+            <div class="kpi-divider"></div>
+            <div class="kpi-item kpi-item-col kpi-message" title="Median simple-average tariff of the quarter of economies with the largest share of population without safely managed drinking water, versus the quarter with the smallest share">
+                <span class="kpi-label">Median tariff · highest-need quarter</span>
+                <span class="kpi-value kpi-value-need" id="kpi-need-high">—</span>
+            </div>
+            <div class="kpi-item kpi-item-col" title="Median tariff of the quarter of economies with the smallest share of population without safely managed drinking water">
+                <span class="kpi-label">Lowest-need quarter</span>
+                <span class="kpi-value" id="kpi-need-low">—</span>
+            </div>
+            <div class="kpi-item kpi-item-col" title="Ratio between the two medians">
+                <span class="kpi-label">Gap</span>
+                <span class="kpi-value kpi-value-gap" id="kpi-need-gap">—</span>
+            </div>
+            <div class="kpi-divider"></div>
+            <div class="kpi-item kpi-item-col" title="Estimated import duties on the selected goods, all corridors in scope: trade value × importer's tariff per HS code (intra-EU trade duty-free)">
+                <span class="kpi-label">Est. duties paid</span>
+                <span class="kpi-value kpi-value-duty" id="kpi-duty">—</span>
+            </div>
+            <div class="kpi-item kpi-item-col" title="Estimated duties paid by importers in the global highest-need quarter (share of population without safely managed drinking water)">
+                <span class="kpi-label">…by highest-need importers</span>
+                <span class="kpi-value kpi-value-duty" id="kpi-duty-high">—</span>
+            </div>
+            <div class="kpi-item kpi-item-col" title="Estimated duties ÷ value of imports (corridors whose importer has tariff data): trade-weighted effective duty rate. Globally this is the neutral grey of the arc colours">
+                <span class="kpi-label">Effective duty rate</span>
+                <span class="kpi-value" id="kpi-duty-rate">—</span>
+            </div>
+            <div class="kpi-divider"></div>
+            <div class="kpi-item kpi-item-col" title="Measure of the arcs on the map (after the display threshold)"><span class="kpi-label" id="kpi-total-label">Arcs shown</span><span class="kpi-value" id="kpi-total">—</span><span id="kpi-flows" class="hidden"></span></div>
+            <div class="kpi-divider"></div>
+            <div class="kpi-item kpi-item-col" title="Largest exporter in scope (all partners, before the display threshold)"><span class="kpi-label">#1 Exporter</span><span class="kpi-value kpi-value-exp" id="kpi-top-exp">—</span></div>
+            <div class="kpi-divider"></div>
+            <div class="kpi-item kpi-item-col" title="Largest importer in scope by the arc measure (duties paid or trade value), before the display threshold"><span class="kpi-label" id="kpi-top-imp-label">#1 Duty payer</span><span class="kpi-value kpi-value-imp" id="kpi-top-imp">—</span></div>
+        </div>
+    </div>
+
+    <main>
+        <div class="map-area">
+            <div id="map-container" role="img" aria-label="Tilted world map: ground colour shows the share of the population without safely managed drinking water, walls along borders show tariffs on water treatment goods, arcs show trade flows. Use the Need vs tariff chart or the country pickers for keyboard access."></div>
+            <div id="tooltip" role="tooltip"></div>
+            <div id="map-badge" aria-live="polite"><span id="mb-year">2024</span><span id="mb-meta"></span></div>
+
+            <!-- View controls -->
+            <div id="view-controls" aria-label="Map view controls">
+                <button id="view-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+                <button id="view-zoom-out" title="Zoom out" aria-label="Zoom out">&minus;</button>
+                <button id="view-reset" title="Reset view" aria-label="Reset view">
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M5.6 15A8 8 0 0 0 19 17M18.4 9A8 8 0 0 0 5 7"/></svg>
+                </button>
+                <button id="view-flat" title="Switch between the tilted 3D view and a near top-down view" aria-pressed="false">Top</button>
+            </div>
+            <div id="wall-scale" aria-hidden="true"></div>
+
+            <!-- Need vs tariff analysis panel (docked left, linked to the map) -->
+            <button id="scatter-toggle" type="button" aria-pressed="false" aria-controls="analysis-panel" title="Show need vs tariff: the chart behind the map">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><circle cx="8" cy="15" r="1.6"/><circle cx="12" cy="11" r="1.6"/><circle cx="17" cy="7" r="1.6"/><circle cx="15" cy="14" r="1.6"/></svg>
+                Need vs tariff
+            </button>
+            <aside id="analysis-panel" aria-label="Need versus tariff analysis">
+                <div class="ap-head">
+                    <div>
+                        <div class="ap-title">Need vs tariff</div>
+                        <div class="ap-sub">Each dot is an economy · hover or click to find it on the map</div>
+                    </div>
+                    <button id="analysis-close" class="btn-close" aria-label="Close panel">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div class="ap-body">
+                    <svg id="scatter-svg" width="100%" role="img" aria-label="Scatter plot of tariff against share of population without safely managed drinking water, coloured by the bivariate map classes"></svg>
+                    <div id="analysis-note" class="ap-note"></div>
+                    <div class="ap-section">
+                        <div class="ap-section-head">
+                            <span class="ap-label">What $100 of equipment costs at the border</span>
+                            <span id="hh-count" class="ap-count"></span>
+                        </div>
+                        <div class="ap-sub2"><span class="biv-hh-dot"></span> high need · high tariff economies, vs reference groups · <span id="ladder-measure"></span></div>
+                        <div id="hh-refs"></div>
+                        <div id="hh-list"></div>
+                    </div>
+                </div>
+            </aside>
+            </div>
+            <div id="view-hint">Drag to pan &middot; scroll to zoom &middot; right-drag to tilt</div>
+
+            <!-- Country panel -->
+            <div id="insight-panel" aria-live="polite">
+                <div class="panel-header">
+                    <div class="panel-title-group">
+                        <div class="panel-country-name-row"><div id="panel-country-name">—</div></div>
+                        <div id="panel-country-meta">—</div>
+                    </div>
+                    <button id="panel-export-btn" class="focus-export-btn" title="Download this economy's data (CSV)">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                        CSV
+                    </button>
+                    <button id="panel-close-btn" class="btn-close" title="Close" aria-label="Close panel">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div id="panel-body"></div>
+            </div>
+
+            <!-- Mobile FABs -->
+            <button id="mobile-legend-btn">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                Legend
+            </button>
+            <button id="mobile-filter-btn">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                Filters
+                <span id="mobile-filter-badge" class="filter-badge"></span>
+            </button>
+            <div id="mobile-legend-backdrop" class="hidden"></div>
+            <div id="mobile-filter-backdrop" class="hidden"></div>
+            <div id="mobile-country-backdrop" class="hidden"></div>
+
+            <div id="loader">
+                <div class="loader-spinner"></div>
+                <p>Loading data...</p>
+            </div>
+            <div id="webgl-error" class="hidden">
+                <p><strong>3D view unavailable.</strong> This dashboard needs WebGL. Please use a recent version of Chrome, Edge, Firefox or Safari.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer id="map-footer">
+        <p><strong>Sources:</strong> UN Comtrade (16 HS&nbsp;6-digit water and wastewater treatment-related goods; importer-reported values, exporter-reported mirror values where importers do not report); WITS/TRAINS simple-average tariffs, latest available year; WHO/UNICEF JMP 2024 (population without safely managed drinking-water services).</p>
+        <p><strong>Note:</strong> Ground colour shows water-access need (or need × tariff classes in the bivariate map); wall height and colour show the tariff (capped at 20%); circles show estimated duties paid by each importer (trade value × importer's tariff), coloured by the effective duty rate; arcs (on hover, or via "Show") run from supplier to importer and widen towards the importer. Many of the HS codes are also used outside water treatment. Symbolic rings mark small economies whose borders are too small to draw.</p>
+        <p class="footer-method-link"><button id="methodology-btn" class="footer-link-btn">Methodology &amp; Data Sources</button></p>
+    </footer>
+
+    <!-- ── Methodology Modal ── -->
+    <div id="methodology-modal" class="hidden">
+        <div class="modal-backdrop" id="methodology-modal-backdrop"></div>
+        <div class="modal-card methodology-card">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">Methodology &amp; Data Sources</div>
+                    <div class="modal-subtitle">Wastewater Treatment Technology: Trade &amp; Tariff Monitor &mdash; Technical Notes</div>
+                </div>
+                <button id="methodology-modal-close" class="btn-close" aria-label="Close">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body method-body" id="methodology-body"></div>
+        </div>
+    </div>
+
+    <!-- ── Mobile Filter Panel (bottom sheet) ── -->
+    <div id="mobile-filter-panel">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <span>Filters</span>
+            <button id="mobile-filter-close" class="btn-close" aria-label="Close filters">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="sheet-body">
+            <div class="sheet-section">
+                <div class="section-label">Map</div>
+                <div style="display:flex;gap:8px">
+                    <button class="view-btn btn-toggle-lg" data-view="biv">Need × tariff</button>
+                    <button class="view-btn btn-toggle-lg active" data-view="3d">3D walls</button>
+                </div>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Show</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                    <button class="flowview-btn btn-toggle-lg active" data-flowview="importers">Importers</button>
+                    <button class="flowview-btn btn-toggle-lg" data-flowview="top">Top 15 · high need</button>
+                    <button class="flowview-btn btn-toggle-lg" data-flowview="region">By region</button>
+                    <button class="flowview-btn btn-toggle-lg" data-flowview="all">All flows</button>
+                </div>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Size</div>
+                <div style="display:flex;gap:8px">
+                    <button class="metric-btn btn-toggle-lg active" data-metric="duty">Duties paid</button>
+                    <button class="metric-btn btn-toggle-lg" data-metric="value">Trade value</button>
+                </div>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Arc colour</div>
+                <div style="display:flex;gap:8px">
+                    <button class="arccolor-btn btn-toggle-lg active" data-arccolor="rate">Duty rate</button>
+                    <button class="arccolor-btn btn-toggle-lg" data-arccolor="ns">North/South</button>
+                </div>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Region</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                    <button class="region-btn btn-toggle-lg active" data-region="Global">All</button>
+                    <button class="region-btn btn-toggle-lg" data-region="Africa">Africa</button>
+                    <button class="region-btn btn-toggle-lg" data-region="Americas">Americas</button>
+                    <button class="region-btn btn-toggle-lg" data-region="Asia">Asia</button>
+                    <button class="region-btn btn-toggle-lg" data-region="Europe">Europe</button>
+                    <button class="region-btn btn-toggle-lg" data-region="Oceania">Oceania</button>
+                </div>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Year</div>
+                <select id="m-year-select" class="sheet-select" aria-label="Trade year"></select>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Goods</div>
+                <select id="m-product-select" class="sheet-select" aria-label="Products"></select>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Tariff</div>
+                <div style="display:flex;gap:8px">
+                    <button class="duty-btn btn-toggle-lg active" data-duty="MFN">MFN</button>
+                    <button class="duty-btn btn-toggle-lg" data-duty="AHS">Applied (AHS)</button>
+                </div>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Importers</div>
+                <div style="display:flex;gap:8px">
+                    <button class="need-btn btn-toggle-lg active" data-need="all">All</button>
+                    <button class="need-btn btn-toggle-lg" data-need="high">High need (top quarter)</button>
+                </div>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Flow Direction</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                    <label class="flow-label-lg"><input type="checkbox" class="flow-checkbox" value="north-south" checked style="accent-color:#009EDB"><span style="color:#009EDB">N → S</span></label>
+                    <label class="flow-label-lg"><input type="checkbox" class="flow-checkbox" value="south-north" checked style="accent-color:#72BF44"><span style="color:#27833a">S → N</span></label>
+                    <label class="flow-label-lg"><input type="checkbox" class="flow-checkbox" value="south-south" checked style="accent-color:#FBAF17"><span style="color:#b45309">S → S</span></label>
+                    <label class="flow-label-lg"><input type="checkbox" class="flow-checkbox" value="north-north" checked style="accent-color:#AEA29A"><span style="color:#6e6259">N → N</span></label>
+                </div>
+            </div>
+            <div class="sheet-section">
+                <div class="section-label">Download CSV (current view)</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                    <button class="picker-btn-full" data-export="flows" type="button">Trade flows</button>
+                    <button class="picker-btn-full" data-export="countries" type="button">Country indicators</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
