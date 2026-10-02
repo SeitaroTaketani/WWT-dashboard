@@ -1,5 +1,8 @@
 # Progress (update after every step)
 
+> **Archived.** Build log up to 2026-09-30, kept for the decisions and findings it records.
+> Paths such as `qa/debug-geo3.mjs` and `wastewater/` refer to the old layout (now `qa/measure-geo-offset.mjs`, repo root).
+
 ## Phase 0 — Setup
 - [x] Inspect SHC src (index.html, config, styles, main, map, dataLoader) for reuse
 - [x] Scaffold Vite project, copy styles/assets, npm install

@@ -19,10 +19,11 @@ export const Panel = {
         $('insight-panel').classList.add('open');
         document.body.classList.add('panel-open');
         this.render(iso);
-        // The import trend needs every year; fetch in the background and re-render once.
-        if (!this._prefetched) {
-            this._prefetched = true;
-            Data.prefetchAll().then(() => { if (STATE.focusedIso) this.render(STATE.focusedIso); });
+        // The trend chart needs every year's totals; fetch them once in the background and re-render.
+        if (!STATE.trend && !this._trendLoading) {
+            this._trendLoading = true;
+            Data.loadTrend().then(() => { if (STATE.focusedIso) this.render(STATE.focusedIso); })
+                .finally(() => { this._trendLoading = false; });
         }
     },
 
@@ -131,11 +132,8 @@ export const Panel = {
 
     _trend(iso, idx) {
         const years = CONFIG.years;
-        const series = years.map(y => {
-            const t = Data.countryTotals(iso, y, idx);
-            return t ? { y, imp: t.imp, exp: t.exp } : null;
-        });
-        if (series.some(s => s === null)) {
+        const series = Data.trendOf(iso, idx);
+        if (!series) {
             return `<div class="si-section"><div class="si-label">Imports &amp; exports ${years[0]}–${years[years.length - 1]}</div><div class="si-loading">Loading trend…</div></div>`;
         }
         const W = 320, H = 70;

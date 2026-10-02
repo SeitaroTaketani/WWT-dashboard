@@ -5,7 +5,7 @@ export const CONFIG = {
     // The UN TopoJSON stores longitudes relative to a central meridian of ~11.31°E
     // (decoded lon = real lon − 11.31; verified on Cap-Vert, Cape Agulhas, Ras Hafun).
     // Real-world coordinates (meta.json, region centres, graticule) are rotated by this
-    // amount so they line up with the map geometry. See qa/debug-geo3.mjs.
+    // amount so they line up with the map geometry. See qa/measure-geo-offset.mjs.
     geoLonOffset: 11.31,
     years: d3.range(2010, 2025),
     defaultYear: 2024,
@@ -124,7 +124,7 @@ export const STATE = {
     focusedIso: null,
 
     // loaded data
-    countries: {}, products: null, tariffs: {}, water: {}, walls: {}, flowsByYear: {},
+    countries: {}, products: null, tariffs: {}, water: {}, walls: {}, flowsByYear: {}, trend: null,
     // derived
     tariffView: {},          // iso -> {value, year, n}
     filteredFlows: [],

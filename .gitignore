@@ -4,3 +4,6 @@ __pycache__/
 .DS_Store
 *.log
 dist/
+
+# QA output (regenerate with `npm run shots` / `node qa/interact.mjs`)
+qa/shots/

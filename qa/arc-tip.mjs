@@ -1,12 +1,13 @@
 // QA: hover a specific corridor and screenshot its tooltip. Usage: node qa/arc-tip.mjs EXP IMP [hash]
-import { chromium } from 'playwright';
+import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { BASE_URL, SHOTS_DIR, launch } from './_browser.mjs';
 const [exp, imp, hash = ''] = process.argv.slice(2);
-const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'shots');
-const browser = await chromium.launch({ executablePath: 'C:/Users/seitaro.taketani/AppData/Local/ms-playwright/chromium-1228/chrome-win64/chrome.exe', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const OUT = SHOTS_DIR;
+fs.mkdirSync(OUT, { recursive: true });
+const browser = await launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-await page.goto(`http://localhost:8080/${hash || `#y=2024&p=all&d=MFN&r=Global&c=${imp}`}`);
+await page.goto(`${BASE_URL}${hash || `#y=2024&p=all&d=MFN&r=Global&c=${imp}`}`);
 await page.waitForFunction(() => window.__wwtReady === true);
 await page.waitForTimeout(2500);
 const pt = await page.evaluate(([e, i]) => {

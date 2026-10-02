@@ -1,0 +1,8 @@
+# Normalise text to LF in the repository and in working trees (also on Windows).
+* text=auto eol=lf
+
+# Raw pipeline inputs are stored byte for byte (no EOL conversion, no diffs).
+data/raw/*.csv -text -diff
+data/raw/*.gz binary
+*.png binary
+*.svg text

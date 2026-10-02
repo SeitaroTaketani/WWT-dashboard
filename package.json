@@ -3,19 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 8080",
     "data": "python scripts/process_wwt.py",
+    "lint": "eslint .",
+    "test": "npm run build && node qa/run.mjs",
     "shots": "node qa/shots.mjs"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.3.0",
     "d3": "^7.9.0",
     "three": "^0.170.0",
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "globals": "^17.13.0",
     "less": "^4.6.4",
     "playwright": "^1.60.0",
     "vite": "^5.4.0"

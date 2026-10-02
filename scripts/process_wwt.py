@@ -1,12 +1,13 @@
 """
 UNCTAD WWT dashboard — data pipeline.
 
-Inputs  (../data relative to dashboard/):
-  COMTRADE/Country_Report.csv                 bilateral trade, 16 HS6 codes, 2010-2024
-  tariff/DataJobID-*_WWT.csv                  WITS tariffs (MFN / AHS / BND), latest year per reporter
-  Share without safely managed water/data.csv WHO/UNICEF JMP, % using safely managed drinking water
-  ../country_classification.json              UNCTAD regions & development status
-  map-chart-style-package/data/meta.json      ISO3 names + label coordinates
+Inputs  (all inside this repository, see data/raw/README.md):
+  data/raw/comtrade_wwt.csv.gz                  bilateral trade, 16 HS6 codes, 2010-2024 (scripts/extract_comtrade.py)
+  data/raw/wits_tariffs_wwt.csv                 WITS tariffs (MFN / AHS / BND), latest year per reporter
+  data/raw/who_unicef_jmp_drinking_water.csv    WHO/UNICEF JMP, % using safely managed drinking water
+  data/raw/meta.json                            ISO3 names + label coordinates
+  public/data/country_classification.json       UNCTAD regions & development status (also read by the app)
+  public/assets/worldmap-economies-4326.topo.json  UN map (wall geometry; also drawn by the app)
 
 Outputs (public/data/):
   countries.json  {iso3: {m49, name, coords, region, dev, ldc, sids}}
@@ -14,10 +15,11 @@ Outputs (public/data/):
   tariffs.json    {iso3: {MFN: {year, r: [16 rates|null]}, AHS: {...}}}
   water.json      {iso3: {without, urban, rural, year}}
   flows/YYYY.json [[exp, imp, [16 values USD]], ...]  (importer-reported preferred, exporter mirror fallback)
+  trend.json      {iso3: [imports, exports]} totals over all partners, flat year-major [year_index*16 + hs_index]
+                  (lets the country panel draw its 2010-2024 trend without loading every flows/YYYY.json)
   walls.json      {iso3: [[x,y,...flat ring in Equal Earth unit coords], ...]}
   validation.json summary figures checked by scripts/validate.py
 """
-import glob
 import json
 import math
 import os
@@ -30,10 +32,10 @@ from shapely.geometry import Polygon, MultiPolygon, Point
 from shapely.ops import unary_union
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DASH = os.path.dirname(HERE)
-ROOT = os.path.dirname(DASH)                       # wastewater/
-DATA = os.path.join(ROOT, 'data')
-OUT = os.path.join(DASH, 'public', 'data')
+REPO = os.path.dirname(HERE)
+RAW = os.path.join(REPO, 'data', 'raw')
+PUBLIC = os.path.join(REPO, 'public')
+OUT = os.path.join(PUBLIC, 'data')
 os.makedirs(os.path.join(OUT, 'flows'), exist_ok=True)
 
 YEARS = list(range(2010, 2025))
@@ -107,8 +109,8 @@ def main():
     report = {}
 
     # ── Classification ───────────────────────────────────────────────────────
-    cls = load_json(os.path.join(ROOT, 'country_classification.json'))
-    meta = load_json(os.path.join(ROOT, 'map-chart-style-package', 'data', 'meta.json'))
+    cls = load_json(os.path.join(OUT, 'country_classification.json'))
+    meta = load_json(os.path.join(RAW, 'meta.json'))
     region_names = {k: v['name'] for k, v in cls['regions'].items()}
     developed = set(cls['development']['1500']['countries'])
     ldcs = set(cls['development']['1610']['countries'])
@@ -116,7 +118,7 @@ def main():
     # ── Trade ────────────────────────────────────────────────────────────────
     print('reading Comtrade ...')
     yrs = [str(y) for y in YEARS]
-    tr = pd.read_csv(os.path.join(DATA, 'COMTRADE', 'Country_Report.csv'), encoding='utf-8-sig',
+    tr = pd.read_csv(os.path.join(RAW, 'comtrade_wwt.csv.gz'), encoding='utf-8-sig',
                      low_memory=False, dtype={'HS_Code': str})
     sids_flags = {}
     eu_members = set()
@@ -148,23 +150,36 @@ def main():
     active = set(m.exp) | set(m.imp)
     flow_sizes = {}
     year_totals = {}
+    trend = {}   # iso3 -> [imports, exports], each flat year-major: [(year_index * len(HS)) + hs_index]
+
+    def trend_rec(iso):
+        if iso not in trend:   # (setdefault would build the zero lists on every call)
+            trend[iso] = [[0] * (len(YEARS) * len(HS)) for _ in range(2)]
+        return trend[iso]
+
     for y, g in m.groupby('year'):
         g = g.assign(i=g.HS_Code.map(HS_IDX))
         g = g.dropna(subset=['i'])
         out = []
+        y0 = YEARS.index(int(y)) * len(HS)
         for (e, i_), gg in g.groupby(['exp', 'imp']):
             vals = [0] * len(HS)
             for idx, v in zip(gg.i, gg.v):
                 vals[int(idx)] += int(round(v))
             out.append([e, i_, vals])
+            for k, v in enumerate(vals):
+                if v:
+                    trend_rec(i_)[0][y0 + k] += v
+                    trend_rec(e)[1][y0 + k] += v
         flow_sizes[y] = dump(f'flows/{y}.json', out)
         year_totals[y] = int(g.v.sum())
+    dump('trend.json', {iso: trend[iso] for iso in sorted(trend)})
     report['flow_file_kb'] = {k: round(v / 1024) for k, v in flow_sizes.items()}
     report['world_total_by_year'] = year_totals
 
     # ── Tariffs ──────────────────────────────────────────────────────────────
     print('reading tariffs ...')
-    tf = pd.read_csv(glob.glob(os.path.join(DATA, 'tariff', '*.csv'))[0], encoding='latin-1', dtype={'Product': str})
+    tf = pd.read_csv(os.path.join(RAW, 'wits_tariffs_wwt.csv'), encoding='latin-1', dtype={'Product': str})
     tf = tf[tf.DutyType.isin(['MFN', 'AHS'])]
     tf = tf.assign(iso=tf.Reporter.map(m49_to_iso3)).dropna(subset=['iso'])
     tariffs = {}
@@ -178,7 +193,7 @@ def main():
     report['tariff_countries'] = len(tariffs)
 
     # ── Water (WHO/UNICEF JMP) ───────────────────────────────────────────────
-    wd = pd.read_csv(os.path.join(DATA, 'Share without safely managed water', 'data.csv'))
+    wd = pd.read_csv(os.path.join(RAW, 'who_unicef_jmp_drinking_water.csv'))
     wd = wd[wd.IsLatestYear == True]
     water = {}
     for iso, g in wd.groupby('SpatialDimValueCode'):
@@ -248,7 +263,7 @@ def main():
     report['need_tariff_spearman'] = round(float(df.corr(method='spearman').iloc[0, 1]), 3)
     report['need_tariff_n'] = int(len(df))
 
-    # Estimated duty burden (must match src/data.js dutyOf): sum over HS of value x rate/100,
+    # Estimated duty burden (must match src/data.js Data.dutyOn / rateVector): sum over HS of value x rate/100,
     # missing HS rate -> the economy's mean available rate; intra-EU trade = 0 (customs union).
     import numpy as np
     q3 = float(np.quantile([w['without'] for w in water.values()], 0.75))
@@ -300,7 +315,7 @@ CAGE_R = 0.009          # symbolic ring for very small states (SIDS etc.)
 
 
 def build_walls(countries):
-    topo = load_json(os.path.join(DASH, 'public', 'assets', 'worldmap-economies-4326.topo.json'))
+    topo = load_json(os.path.join(PUBLIC, 'assets', 'worldmap-economies-4326.topo.json'))
     feats = topojson_decode.features(topo, 'economies')
     m49_iso = {v['m49'].lstrip('0'): k for k, v in countries.items() if v['m49']}
     walls, cages, missing, centroids = {}, [], [], {}

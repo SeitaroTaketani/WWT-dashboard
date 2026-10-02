@@ -1,18 +1,24 @@
 // QA: drive the main interactions and report console errors / failed assertions.
-import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { BASE_URL, SHOTS_DIR, launch } from './_browser.mjs';
 
-const BASE = process.argv[2] || 'http://localhost:8080/';
-const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'shots');
-const exe = process.env.PW_CHROME || 'C:/Users/seitaro.taketani/AppData/Local/ms-playwright/chromium-1228/chrome-win64/chrome.exe';
-const browser = await chromium.launch({ executablePath: fs.existsSync(exe) ? exe : undefined, args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const BASE = process.argv[2] || BASE_URL;
+const OUT = SHOTS_DIR;
+fs.mkdirSync(OUT, { recursive: true });
+const browser = await launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
 const problems = [];
 page.on('console', m => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
 page.on('pageerror', e => problems.push('pageerror: ' + e.message));
-const ok = (cond, msg) => { if (!cond) problems.push('FAIL: ' + msg); else console.log('ok  ', msg); };
+const flowYears = new Set();
+let trendRequests = 0;
+page.on('request', r => {
+    const m = r.url().match(/data\/flows\/(\d{4})\.json/);
+    if (m) flowYears.add(m[1]);
+    if (/data\/trend\.json/.test(r.url())) trendRequests++;
+});
+const ok =(cond, msg) => { if (!cond) problems.push('FAIL: ' + msg); else console.log('ok  ', msg); };
 
 await page.goto(BASE);
 await page.waitForFunction(() => window.__wwtReady === true, null, { timeout: 60000 });
@@ -70,7 +76,6 @@ ok(page.url().includes('p=filtration'), 'deep link records product');
 
 await page.click('#region-group [data-region="Europe"]');
 await page.waitForTimeout(1500);
-k = await kpi();
 ok(await page.textContent('#kpi-scope') === 'Europe', 'region filter updates scope KPI');
 const wallLbls = await page.$$eval('.lbl-wall .lw-name', els => els.map(e => e.textContent));
 ok(!wallLbls.some(n => /Algeria|Ethiopia|Brazil|Iran/.test(n)), `wall labels follow region (${wallLbls.join(', ')})`);
@@ -108,6 +113,9 @@ ok(await page.textContent('#panel-country-name') === 'Ethiopia', 'panel opens fo
 const panelTxt = await page.textContent('#panel-body');
 ok(/11\.5%/.test(panelTxt) || /Filtration/.test(panelTxt), 'panel shows tariff content');
 await page.screenshot({ path: path.join(OUT, 'i1-ethiopia.png') });
+await page.waitForSelector('#panel-body svg[aria-label="Imports and exports trend"]', { timeout: 10000 });
+ok(trendRequests === 1, `panel trend loads trend.json once (${trendRequests} request)`);
+ok(flowYears.size < 15, `opening a country panel does not load every year (${flowYears.size} of 15 flows files so far)`);
 
 // CSV downloads
 const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#panel-export-btn')]);
@@ -115,6 +123,30 @@ const f = path.join(OUT, await dl.suggestedFilename());
 await dl.saveAs(f);
 const csv = fs.readFileSync(f, 'utf8');
 ok(csv.split('\n').length > 50, `country CSV has rows (${csv.split('\n').length})`);
+ok(/^2010,/m.test(csv) && /^2024,/m.test(csv), 'country CSV covers all years (years are fetched on demand for the export)');
+
+// The precomputed trend must equal the sums of the per-year flow files (all goods and a single HS code)
+const trendDiffs = await page.evaluate(async () => {
+    const D = window.__Data, S = window.__STATE;
+    await D.loadTrend();
+    const all = D.productIndices('all'), one = D.productIndices('842121');
+    const diffs = [];
+    for (const [yi, y] of S.products.years.entries()) {
+        const raw = await D.loadYear(y);
+        for (const iso of ['ETH', 'CAN', 'USA', 'CHN', 'DEU']) {
+            const sum = { all: { imp: 0, exp: 0 }, one: { imp: 0, exp: 0 } };
+            for (const [e, i, vals] of raw) {
+                const v = vals.reduce((a, b) => a + b, 0);
+                if (i === iso) { sum.all.imp += v; sum.one.imp += vals[one[0]]; }
+                if (e === iso) { sum.all.exp += v; sum.one.exp += vals[one[0]]; }
+            }
+            const a = D.trendOf(iso, all)[yi], b = D.trendOf(iso, one)[yi];
+            if (a.imp !== sum.all.imp || a.exp !== sum.all.exp || b.imp !== sum.one.imp || b.exp !== sum.one.exp) diffs.push(`${iso} ${y}`);
+        }
+    }
+    return diffs;
+});
+ok(trendDiffs.length === 0, `trend.json equals the flows sums for ETH CAN USA CHN DEU x 15 years${trendDiffs.length ? ': ' + trendDiffs.join(', ') : ''}`);
 await page.click('#panel-close-btn');
 await page.click('#export-btn');
 const [dl2] = await Promise.all([page.waitForEvent('download'), page.click('#export-menu [data-export="countries"]')]);
@@ -193,3 +225,4 @@ await page.keyboard.press('Escape');
 
 await browser.close();
 console.log(problems.length ? '\nPROBLEMS:\n' + problems.join('\n') : '\nAll interaction checks passed, no console errors.');
+process.exitCode = problems.length ? 1 : 0;   // so `npm test` and CI fail on any problem

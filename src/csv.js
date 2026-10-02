@@ -57,7 +57,8 @@ export const Csv = {
             rows, notes());
     },
 
-    country(iso) {
+    async country(iso) {
+        await Data.prefetchAll();   // the file covers every year, but years are only fetched on demand
         const { hs, desc } = STATE.products;
         const m = STATE.tariffs[iso]?.MFN, a = STATE.tariffs[iso]?.AHS;
         const rows = [];

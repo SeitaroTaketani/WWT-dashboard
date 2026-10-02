@@ -1,13 +1,12 @@
 // QA: screenshots of key states + console error capture.
 // Usage: node qa/shots.mjs [baseUrl] [only-name]
-import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { BASE_URL, SHOTS_DIR, launch } from './_browser.mjs';
 
-const BASE = process.argv[2] || 'http://localhost:8080/';
+const BASE = process.argv[2] || BASE_URL;
 const ONLY = process.argv[3];
-const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'shots');
+const OUT = SHOTS_DIR;
 fs.mkdirSync(OUT, { recursive: true });
 
 const states = [
@@ -37,8 +36,7 @@ const states = [
     { name: '10-wide', hash: '', viewport: { width: 1920, height: 1080 } },
 ];
 
-const exe = process.env.PW_CHROME || 'C:/Users/seitaro.taketani/AppData/Local/ms-playwright/chromium-1228/chrome-win64/chrome.exe';
-const browser = await chromium.launch({ executablePath: fs.existsSync(exe) ? exe : undefined, args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const browser = await launch();
 const errors = [];
 for (const s of states) {
     if (ONLY && !s.name.includes(ONLY)) continue;

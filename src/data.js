@@ -32,9 +32,27 @@ export const Data = {
         return STATE.flowsByYear[year];
     },
 
-    // Warm the cache for the animation so playback never waits on the network.
+    // Warm the cache for the animation and the country CSV so they never wait on the network.
     prefetchAll() {
         return Promise.all(CONFIG.years.map(y => this.loadYear(y).catch(() => null)));
+    },
+
+    // Per-economy import/export totals for every year (small; the panel trend needs no flows/YYYY.json).
+    async loadTrend() {
+        if (!STATE.trend) STATE.trend = await getJSON('data/trend.json');
+        return STATE.trend;
+    },
+
+    // Imports and exports of the selected goods per year, or null until loadTrend() has resolved.
+    trendOf(iso, idx = this.productIndices()) {
+        if (!STATE.trend) return null;
+        const rec = STATE.trend[iso];
+        const n = STATE.products.hs.length;
+        return CONFIG.years.map((y, yi) => {
+            let imp = 0, exp = 0;
+            if (rec) for (const k of idx) { imp += rec[0][yi * n + k]; exp += rec[1][yi * n + k]; }
+            return { y, imp, exp };
+        });
     },
 
     // ── Product selection → HS index list ────────────────────────────────

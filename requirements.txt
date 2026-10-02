@@ -1,0 +1,6 @@
+# Data pipeline (scripts/process_wwt.py). Tested with Python 3.13, pandas 2.3.3, numpy 2.4.4, shapely 2.1.2.
+# pycountry is pinned because its ISO 3166 numeric/alpha-3 table decides the M49 -> ISO3 mapping.
+pandas>=2.2
+numpy>=1.26
+shapely>=2.0
+pycountry==26.2.16

@@ -1,5 +1,9 @@
 # UNCTAD WWT Global Dashboard — Plan
 
+> **Archived.** Working plan from the initial autonomous build (2026-09-29). The constraints below (location
+> `wastewater/dashboard/`, "no git operations", "never push/deploy", reference to the SHC repo path) no longer
+> apply: the project now lives in this repository and deploys through GitHub Pages. See `README.md` and `CLAUDE.md`.
+
 ## Goal
 Show that countries most in need of water/wastewater treatment technology apply higher tariffs on it,
 together with bilateral trade flows. English UI. **UNCTAD style (as in SHC monitor) is the top design priority.**
