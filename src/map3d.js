@@ -12,7 +12,7 @@ import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRe
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
-import { CONFIG, STATE, VIEW3D, fmtPct, fmtUSD } from './config.js';
+import { CONFIG, STATE, VIEW3D, fmtPct, fmtUSD, tariffColor, TARIFF_SCALE } from './config.js';
 import { prefersReducedMotion } from './motion.js';
 
 const S = VIEW3D.worldScale;
@@ -203,21 +203,21 @@ export const Map3D = {
         this._flyTo(target, pos, VIEW3D.defaultZoom * (narrow ? 3.2 : 1), animate);
     },
 
-    // Current camera elevation: bivariate view is top-down, 'Top' is 80°, default 3D is 52°
+    // Current camera elevation: the 2D view is top-down, 'Top' is 80°, default 3D is 52°
     viewElev() {
-        if (this.mode === 'biv') return 89.9;
+        if (this.mode === '2d') return 89.9;
         return this.flat ? VIEW3D.topViewElevationDeg : VIEW3D.elevationDeg;
     },
 
     _applyElevation(animate = true) {
         const e = this.viewElev();
-        const locked = this.mode === 'biv' || this.flat;
+        const locked = this.mode === '2d' || this.flat;
         const polar = (90 - e) * deg;
         this.controls.minPolarAngle = locked ? polar : VIEW3D.polarRangeDeg[0] * deg;
         this.controls.maxPolarAngle = locked ? polar : VIEW3D.polarRangeDeg[1] * deg;
         // Top-down views keep north up (no azimuth rotation)
-        this.controls.minAzimuthAngle = this.mode === 'biv' ? 0 : -VIEW3D.azimuthRangeDeg * deg;
-        this.controls.maxAzimuthAngle = this.mode === 'biv' ? 0 : VIEW3D.azimuthRangeDeg * deg;
+        this.controls.minAzimuthAngle = this.mode === '2d' ? 0 : -VIEW3D.azimuthRangeDeg * deg;
+        this.controls.maxAzimuthAngle = this.mode === '2d' ? 0 : VIEW3D.azimuthRangeDeg * deg;
         const t = this.controls.target.clone();
         const pos = t.clone().add(new THREE.Vector3(0, 1500 * Math.cos(polar), 1500 * Math.sin(polar)));
         this._flyTo(t, pos, this.camera.zoom, animate);
@@ -228,12 +228,12 @@ export const Map3D = {
         this._applyElevation();
     },
 
-    // 'biv': bivariate need × tariff ground, walls hidden, top-down · '3d': tariff walls
+    // '2d': flat top-down map, walls hidden (tariff is carried by the importer circles) · '3d': tariff walls
     setMode(mode, animate = true) {
         this.invalidate();
         this.mode = mode;
-        this.wallGroup.visible = mode !== 'biv';
-        this.guideGroup.visible = mode !== 'biv';
+        this.wallGroup.visible = mode !== '2d';
+        this.guideGroup.visible = mode !== '2d';
         this._applyElevation(animate);
         this.setWallLabels(this._wallLabelIsos || []);
         this._buildFocusGuides();
@@ -345,7 +345,7 @@ export const Map3D = {
 
     needColor: d3.scaleLinear().domain(CONFIG.need.domain).range(CONFIG.need.colors).clamp(true),
 
-    // Ground fill; main.js swaps this for the bivariate palette in 'biv' mode. null = no data (hatched).
+    // Ground fill: the need ramp. null = no data (hatched).
     groundColor(iso) {
         const need = iso ? STATE.water[iso]?.without : null;
         return need != null ? this.needColor(need) : null;
@@ -493,7 +493,7 @@ export const Map3D = {
         this.invalidate();
 
         const [c0, c1, c2, c3] = CONFIG.tariff.colors.map(hex);
-        const [d0, d1, d2, d3] = CONFIG.tariff.domain;
+        const [d0, d1, d2, d3] = TARIFF_SCALE.domain;
         const uniforms = {
             uVals: { value: this.valTex }, uN: { value: N }, uT: { value: 1 },
             uCap: { value: CONFIG.tariff.cap }, uHmax: { value: VIEW3D.wallMaxHeight }, uHmin: { value: VIEW3D.wallMinHeight },
@@ -540,6 +540,15 @@ export const Map3D = {
     },
 
     // values: iso -> tariff % (null/undefined = no data)
+    // Re-centre the wall colour ramp on the current median (call after Data.computeTariffView)
+    setTariffScale() {
+        const u = this.wallUniforms;
+        if (!u) return;
+        TARIFF_SCALE.domain.forEach((d, i) => { u['uD' + i].value = d; });
+        this._rulerKey = '';
+        this.invalidate();
+    },
+
     setWallValues(values, animate = true) {
         const data = this.valTex.image.data;
         const t = this.wallUniforms.uT.value;
@@ -627,7 +636,7 @@ export const Map3D = {
         this.guideGroup.children.slice().forEach(o => { this.guideGroup.remove(o); o.geometry?.dispose(); });
         this._removeLabels('guide');
         const iso = this.focusIso;
-        if (!iso || !this.wallRings[iso] || this.mode === 'biv') return;   // no walls, no height guides
+        if (!iso || !this.wallRings[iso] || this.mode === '2d') return;   // no walls, no height guides
         const mat = new THREE.LineDashedMaterial({ color: 0x004990, dashSize: 0.8, gapSize: 0.6, transparent: true, opacity: 0.55 });
         let anchor = null;
         for (const lvl of CONFIG.tariff.guides) {
@@ -657,13 +666,13 @@ export const Map3D = {
 
     _updateRuler() {
         if (!this.rulerEl) return;
-        this.rulerEl.style.display = this.mode === 'biv' ? 'none' : '';
+        this.rulerEl.style.display = this.mode === '2d' ? 'none' : '';
         const t = this.controls.target;
         const a = t.clone().project(this.camera);
         const b = t.clone().setY(this.wallHeight(CONFIG.tariff.cap)).project(this.camera);
         const { height } = this.container.getBoundingClientRect();
         const px = Math.abs(b.y - a.y) / 2 * height;          // pixels for a capped wall
-        const key = px.toFixed(1);
+        const key = px.toFixed(1) + '|' + TARIFF_SCALE.mid.toFixed(2);
         if (key === this._rulerKey) return;
         this._rulerKey = key;
         const H = Math.max(px, 4), base = H + 8;
@@ -677,7 +686,7 @@ export const Map3D = {
             return `<line x1="14" x2="22" y1="${yy}" y2="${yy}" stroke="#6e6259"/>` +
                 (show ? `<text x="26" y="${yy + 3}">${v === CONFIG.tariff.cap ? v + '%+' : v + '%'}</text>` : '');
         }).join('');
-        const grad = CONFIG.tariff.colors.map((c, i) => `<stop offset="${CONFIG.tariff.domain[i] / CONFIG.tariff.cap}" stop-color="${c}"/>`).join('');
+        const grad = CONFIG.tariff.colors.map((c, i) => `<stop offset="${TARIFF_SCALE.domain[i] / CONFIG.tariff.cap}" stop-color="${c}"/>`).join('');
         this.rulerEl.innerHTML = `<div class="ws-title">Wall height</div>
             <svg width="64" height="${base + 4}" aria-hidden="true">
                 <defs><linearGradient id="wsg" x1="0" y1="1" x2="0" y2="0">${grad}</linearGradient></defs>
@@ -724,7 +733,7 @@ export const Map3D = {
         this._removeLabels('wall');
         for (const iso of isos) {
             const v = this.wallValues?.[iso];
-            const p = this.scenePos(iso, this.mode === 'biv' ? 0.6 : this.wallHeight(v) + 1.2);
+            const p = this.scenePos(iso, this.mode === '2d' ? 0.6 : this.wallHeight(v) + 1.2);
             if (!p || v == null) continue;
             const name = STATE.countries[iso]?.short || STATE.countries[iso]?.name || iso;
             this._addLabel('wall', `<span class="lw-name">${name}</span> <b>${fmtPct(v)}</b>`, p, 'lbl-wall');
@@ -832,22 +841,25 @@ export const Map3D = {
         this.setHoverArcs([]);
         this.nodeGroup.children.slice().forEach(o => { this.nodeGroup.remove(o); o.geometry?.dispose(); o.material?.dispose(); });
 
-        // Importer circles: size = estimated duties paid, colour = effective duty rate (same key as the arcs).
-        // This is the default message layer: who pays, and how heavily.
+        // Importer circles: size = estimated duties paid (who pays, and how heavily). Colour: 3D = effective duty rate (same key
+        // as the arcs; the tariff is the wall), 2D = the importer's tariff (same red scale as the walls; no walls in 2D).
+        // The 2D view keeps a minimum radius so that small but heavily taxed economies stay visible.
         const entries = Object.entries(importerStats).filter(([, s]) => s.duty > 0);
-        const rScale = d3.scaleSqrt().domain([0, d3.max(entries, e => e[1].duty) || 1]).range([0.7, VIEW3D.circleMaxRadius]);
+        const rScale = d3.scaleSqrt().domain([0, d3.max(entries, e => e[1].duty) || 1]).range([STATE.view === '2d' ? VIEW3D.circleMinRadius2d : 0.7, VIEW3D.circleMaxRadius]);
         entries.sort((a, b) => b[1].duty - a[1].duty);          // big first, small on top
         entries.forEach(([iso, s], i) => {
             const p = this.scenePos(iso, 0.25);
             if (!p) return;
             const r = rScale(s.duty);
-            const col = STATE.arcColor === 'ns' ? 0x4f4740 : hex(this.arcRateColor(s.duty / s.value * 100));
+            const tariff = STATE.tariffView?.[iso]?.value;
+            const col = STATE.view === '2d' ? hex(tariff == null ? '#aea29a' : tariffColor(tariff))
+                : STATE.arcColor === 'ns' ? 0x4f4740 : hex(this.arcRateColor(s.duty / s.value * 100));
             const disc = new THREE.Mesh(new THREE.CircleGeometry(r, 32).rotateX(-Math.PI / 2),
                 new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.92, depthWrite: false }));
             disc.position.copy(p);
             disc.renderOrder = 5 + i * 0.001;
             disc.userData.iso = iso;
-            // white halo + dark hairline so circles read over red walls and purple ground alike
+            // white halo + dark hairline so circles read over red walls and blue ground alike
             const ring = new THREE.Mesh(new THREE.RingGeometry(r, r + 0.45, 32).rotateX(-Math.PI / 2),
                 new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, depthWrite: false }));
             ring.position.copy(p).setY(0.26);

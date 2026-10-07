@@ -1,5 +1,5 @@
 // PNG export of the current map view: WebGL canvas + labels + title, legend and sources.
-import { CONFIG, STATE } from './config.js';
+import { CONFIG, STATE, TARIFF_SCALE } from './config.js';
 import { Data } from './data.js';
 import { fmtUSD } from './config.js';
 import { Map3D } from './map3d.js';
@@ -65,21 +65,20 @@ export function downloadMapPNG() {
     const label = (t) => { ctx.font = `700 9px ${FONT}`; ctx.fillStyle = '#6e6259'; ctx.fillText(t.toUpperCase(), x, y); x += ctx.measureText(t.toUpperCase()).width + 8; };
     const sw = (col, w = 16) => { ctx.fillStyle = col; ctx.fillRect(x, y - 8, w, 9); x += w + 1; };
     const txt = (t) => { ctx.font = `400 10px ${FONT}`; ctx.fillStyle = '#6e6259'; ctx.fillText(t, x, y); x += ctx.measureText(t).width + 6; };
-    if (STATE.view === 'biv') {
-        label('Need × tariff');
-        txt('need ↑');
-        for (let ni = 0; ni < 3; ni++) for (let ti = 0; ti < 3; ti++) {
-            ctx.fillStyle = CONFIG.bivariate[ni][ti];
-            ctx.fillRect(x + ti * 9, y + 2 - (ni + 1) * 9, 8, 8);
-        }
-        x += 30; txt('tariff →'); sw(Map3D.noDataPattern(ctx, 0.8), 12); x += 3; txt('no data'); x += 14;
-    } else {
-        label('No safe water'); txt('0%');
+    if (STATE.view === '2d') {
+        label('Population without safely managed water'); txt('0%');
         [10, 30, 50, 70, 90].forEach(v => sw(Map3D.needColor(v))); x += 4; txt('100%'); sw(Map3D.noDataPattern(ctx, 0.8), 12); x += 3; txt('no data'); x += 14;
-        label(`Tariff wall (${STATE.duty})`); txt('0%');
+        label(`Circles: colour = tariff (${STATE.duty})`); txt('0%');
         const g = ctx.createLinearGradient(x, 0, x + 70, 0);
-        CONFIG.tariff.colors.forEach((col, i) => g.addColorStop(CONFIG.tariff.domain[i] / CONFIG.tariff.cap, col));
-        sw(g, 70); x += 4; txt(`${CONFIG.tariff.cap}%+`); x += 14;
+        CONFIG.tariff.colors.forEach((col, i) => g.addColorStop(TARIFF_SCALE.domain[i] / CONFIG.tariff.cap, col));
+        sw(g, 70); x += 4; txt(`${CONFIG.tariff.cap}%+ (median ${TARIFF_SCALE.median.toFixed(1)}%)`); x += 14;
+    } else {
+        label('Population without safely managed water'); txt('0%');
+        [10, 30, 50, 70, 90].forEach(v => sw(Map3D.needColor(v))); x += 4; txt('100%'); sw(Map3D.noDataPattern(ctx, 0.8), 12); x += 3; txt('no data'); x += 14;
+        label(`Import tariff (${STATE.duty}) · wall height`); txt('0%');
+        const g = ctx.createLinearGradient(x, 0, x + 70, 0);
+        CONFIG.tariff.colors.forEach((col, i) => g.addColorStop(TARIFF_SCALE.domain[i] / CONFIG.tariff.cap, col));
+        sw(g, 70); x += 4; txt(`${CONFIG.tariff.cap}%+ (median ${TARIFF_SCALE.median.toFixed(1)}%)`); x += 14;
     }
     label(STATE.flowMetric === 'duty' ? 'Arcs: width = duties paid' : 'Arcs: width = trade');
     if (STATE.arcColor === 'rate') {
@@ -88,7 +87,7 @@ export function downloadMapPNG() {
         const ag = ctx.createLinearGradient(x, 0, x + 60, 0);
         CONFIG.arcRate.colors.forEach((col, i) => ag.addColorStop(dom[i] / max, col));
         ctx.fillStyle = ag; ctx.fillRect(x, y - 6, 60, 4); x += 64;
-        txt(`${+max.toFixed(1)}%+ (grey = world avg ${Map3D.arcMid.toFixed(2)}%)`);
+        txt(`${+max.toFixed(1)}%+ (tick = world avg ${Map3D.arcMid.toFixed(2)}%)`);
     } else for (const [cat, col] of Object.entries(CONFIG.flowColors)) {
         ctx.fillStyle = col; ctx.fillRect(x, y - 5, 14, 3); x += 18;
         txt({ 'north-south': 'N→S', 'south-north': 'S→N', 'south-south': 'S→S', 'north-north': 'N→N' }[cat]);

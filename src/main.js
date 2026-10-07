@@ -5,7 +5,7 @@ import '@fontsource/inter/latin-700.css';
 import './styles/styles.less';
 import './styles/wwt.less';
 import * as d3 from 'd3';
-import { CONFIG, STATE, VIEW3D, HS_SHORT, fmtUSD, fmtPct } from './config.js';
+import { CONFIG, STATE, VIEW3D, HS_SHORT, TARIFF_SCALE, fmtUSD, fmtPct } from './config.js';
 import { Data } from './data.js';
 import { Map3D } from './map3d.js';
 import { CountrySelector } from './countrySelector.js';
@@ -18,7 +18,6 @@ import { Scatter } from './scatter.js';
 import { downloadMapPNG } from './snapshot.js';
 
 const $ = (id) => document.getElementById(id);
-const NEED_GROUND = Map3D.groundColor;   // default ground palette (need ramp)
 const fmtShortUSD = (v) => v >= 1e6 ? `$${+(v / 1e6).toFixed(1)}M` : v >= 1e3 ? `$${+(v / 1e3).toFixed(0)}K` : `$${Math.round(v)}`;
 
 const App = {
@@ -64,12 +63,9 @@ const App = {
         if (window.innerWidth >= 1400) Scatter.toggle(true);
 
         const link = DeepLink.read();
-        if (STATE.view === 'biv') {
-            document.body.classList.add('view-biv');
-            Data.computeTariffView();
-            this._applyGroundColours();
-            Map3D.drawGround();
-            Map3D.setMode('biv', false);
+        if (STATE.view === '2d') {
+            document.body.classList.add('view-2d');
+            Map3D.setMode('2d', false);
         }
         this._syncControls();
         await this.update({ animate: false });
@@ -284,21 +280,9 @@ const App = {
 
     setView(view, animate = true) {
         STATE.view = view;
-        document.body.classList.toggle('view-biv', view === 'biv');
-        this._applyGroundColours();
-        Map3D.drawGround();
+        document.body.classList.toggle('view-2d', view === '2d');
         Map3D.setMode(view, animate);
         this.update({ walls: false });
-    },
-
-    // Ground palette: need ramp (3D) or bivariate need × tariff classes
-    _applyGroundColours() {
-        if (STATE.view !== 'biv') { Map3D.groundColor = NEED_GROUND; return; }
-        this._biv = Data.bivariate();
-        Map3D.groundColor = (iso) => {
-            const c = iso && this._biv.cls[iso];
-            return c ? CONFIG.bivariate[c[0]][c[1]] : null;   // null → no-data hatch
-        };
     },
 
     _flyToRegion(region, animate) {
@@ -322,8 +306,8 @@ const App = {
             Data.computeTariffView();
             const vals = {};
             for (const [iso, t] of Object.entries(STATE.tariffView)) vals[iso] = t.value;
+            Map3D.setTariffScale();
             Map3D.setWallValues(vals, animate);
-            if (STATE.view === 'biv') { this._applyGroundColours(); Map3D.drawGround(); }
         }
         Map3D.setWallLabels(this._topTariffIsos());   // depends on region too, so always refresh
         if (flows) {
@@ -338,7 +322,7 @@ const App = {
         this.renderKPIs();
         Scatter.render();
         $('mb-year').textContent = STATE.year;
-        $('mb-meta').innerHTML = `${Data.productLabel()}<br>Walls: ${STATE.duty === 'MFN' ? 'MFN' : 'applied (AHS)'} tariff, latest year · Ground: WHO/UNICEF JMP 2024`;
+        $('mb-meta').innerHTML = `${Data.productLabel()}<br>${this._keySentence()}`;
         if (STATE.focusedIso) Panel.render(STATE.focusedIso);
         DeepLink.write();
     },
@@ -380,42 +364,60 @@ const App = {
             return `<span class="lg-swatch" style="background:${Map3D.needColor(mid)}" title="${v}–${CONFIG.need.domain[i + 1]}%"></span>`;
         }).join('');
         const t = CONFIG.tariff;
-        const wallGrad = `linear-gradient(90deg, ${t.colors.map((c, i) => `${c} ${t.domain[i] / t.cap * 100}%`).join(', ')})`;
+        const ts = TARIFF_SCALE;
+        const wallGrad = `linear-gradient(90deg, ${t.colors.map((c, i) => `${c} ${ts.domain[i] / t.cap * 100}%`).join(', ')})`;
         const isManual = STATE.thresholdMode !== 'auto';
 
-        const groundLegend = STATE.view === 'biv' ? this._bivLegendHTML() : `
-            <div class="legend-section" title="WHO/UNICEF JMP 2024: share of the population not using safely managed drinking-water services">
-                <span class="legend-section-label">No safe water</span>
+        const is2d = STATE.view === '2d';
+        const sizeWord = STATE.flowMetric === 'duty' ? 'duties paid' : 'trade value';
+        const dutyName = STATE.duty === 'MFN' ? 'MFN' : 'applied';
+        const needLegend = `
+            <div class="legend-section" title="Share of the population not using safely managed drinking-water services (WHO/UNICEF JMP 2024, SDG 6.1.1): an improved source located on premises, available when needed and free from faecal and priority chemical contamination. People with a basic or limited service, unimproved sources or surface water are counted as without.">
+                <span class="legend-section-label">${this._chip(CONFIG.need.colors[4])}Without safely managed water</span>
                 <span class="lg-scale-lbl">0%</span>${needStops}<span class="lg-scale-lbl">100%</span>
-                <span class="lg-swatch lg-nodata" title="No data"></span><span class="lg-scale-lbl">n/a</span>
-            </div>
-            <span class="legend-bar-divider"></span>
-            <div class="legend-section" title="Wall height and colour: simple-average ${STATE.duty} tariff on the selected goods, capped at ${t.cap}%">
-                <span class="legend-section-label">Tariff wall (${STATE.duty === 'MFN' ? 'MFN' : 'AHS'})</span>
-                <span class="lg-scale-lbl">0%</span><span class="lg-wall" style="background:${wallGrad}"></span><span class="lg-scale-lbl">${t.cap}%+</span>
+                <span class="lg-swatch lg-nodata" title="No data"></span><span class="lg-scale-lbl">no data</span>
             </div>`;
-        $('legend-content').innerHTML = `${groundLegend}
+        const tariffRamp = `<span class="lg-scale-lbl">0%</span><span class="lg-tariff-wrap"><span class="lg-wall" style="background:${wallGrad}"></span><span class="lg-arcmid-tick" style="left:${ts.mid / t.cap * 100}%"></span></span><span class="lg-scale-lbl">${t.cap}%+</span>
+                <span class="lg-scale-lbl" title="The tick marks the median economy (${fmtPct(ts.median, 2)}) for the selected goods and tariff measure, over all economies with data. Blue = below the median, red = above.">median ${fmtPct(ts.median)}</span>`;
+        const arcKey = STATE.arcColor === 'rate' ? this._arcRateLegendHTML(flows) : `<div class="legend-flows">${flowItems}</div>`;
+        const circleKey = `<span class="legend-node lg-circle-key" title="Circle size = ${STATE.flowMetric === 'duty' ? 'duties paid by the importer' : 'imports'}"></span>
+                <span class="lg-scale-lbl">size = ${sizeWord.split(' ')[0]}</span>`;
+
+        const groundAndTariff = is2d ? needLegend : `${needLegend}
             <span class="legend-bar-divider"></span>
-            <div class="legend-section" title="Circles at each importer and arcs from supplier to importer. Size: ${STATE.flowMetric === 'duty' ? 'estimated duties paid' : 'trade value'}. Colour: effective duty rate (duties ÷ trade value).">
-                <span class="legend-section-label">Duties</span>
-                <span class="legend-node lg-circle-key" title="Circle size = ${STATE.flowMetric === 'duty' ? 'duties paid by the importer' : 'imports'}"></span>
-                <span class="lg-scale-lbl">size = ${STATE.flowMetric === 'duty' ? 'duties $' : 'trade $'}</span>
-                ${STATE.arcColor === 'rate' ? this._arcRateLegendHTML(flows) : `<div class="legend-flows">${flowItems}</div>`}
-            </div>
+            <div class="legend-section" title="Wall height: simple-average ${STATE.duty} tariff on the selected goods, capped at ${t.cap}%. Wall colour: blue below, red above the median economy.">
+                <span class="legend-section-label">${this._chip(t.colors[0])}${this._chip(t.colors[2])}Wall = tariff (${dutyName})</span>
+                ${tariffRamp}
+            </div>`;
+        const circles = is2d ? `
+            <div class="legend-section" title="Circles at each importer. Size: ${sizeWord}. Colour: the importer's simple-average ${STATE.duty} tariff on the selected goods (the same red scale as the walls in the 3D view), capped at ${t.cap}%.">
+                <span class="legend-section-label">${this._chip(t.colors[0])}${this._chip(t.colors[2])}Circles</span>
+                ${circleKey}
+                <span class="lg-scale-lbl">colour = tariff (${dutyName})</span>${tariffRamp}
+            </div>` : `
+            <div class="legend-section" title="Circles at each importer and arcs from supplier to importer. Size: ${sizeWord}. Colour: effective duty rate (duties ÷ trade value).">
+                <span class="legend-section-label">${this._chip(CONFIG.arcRate.colors[2])}Circles</span>
+                ${circleKey}
+                ${arcKey}
+            </div>`;
+        $('legend-content').innerHTML = `${groundAndTariff}
+            <span class="legend-bar-divider"></span>
+            ${circles}
             <span class="legend-bar-divider"></span>
             <div class="legend-section">
                 <span class="legend-section-label">Arcs</span>
                 <span class="lg-scale-lbl">${{
                     importers: 'on hover',
-                    top: `top ${flows.length} · high need`,
+                    top: `top ${flows.length}`,
                     region: `${flows.length} to regions`,
                     all: '',
                 }[STATE.arcView]}</span>
                 ${STATE.arcView === 'all' ? `<span class="legend-threshold-badge${isManual ? ' manual' : ''}">${isManual ? 'MANUAL' : 'AUTO'}</span>
                 <span class="legend-threshold-val">${fmtUSD(STATE.effectiveThreshold)}</span>
                 <span class="legend-arc-count">${flows.length} arcs</span>` : ''}
-                <svg class="lg-taper" width="40" height="10" aria-hidden="true"><path d="M1 5 H20" stroke="${CONFIG.arcRate.colors[0]}" stroke-width="2.5"/><path d="M20 5 H39" stroke="#d0234f" stroke-width="5.5"/></svg>
-                <span class="lg-scale-lbl" title="Each arc runs from supplier to importer. First half: goods at export price, i.e. at 0% duty (the 0% colour, width = trade value). At the midpoint the importer's duty is added: the arc turns to the duty-rate colour and widens by the rate (×${VIEW3D.arcStepExaggeration} for visibility).">width = trade · +duty at midpoint</span>
+                ${is2d ? arcKey : ''}
+                <svg class="lg-taper" width="40" height="10" aria-hidden="true"><path d="M1 5 H20" stroke="${CONFIG.arcRate.colors[0]}" stroke-width="2.5"/><path d="M20 5 H39" stroke="${CONFIG.arcRate.colors[3]}" stroke-width="5.5"/></svg>
+                <span class="lg-scale-lbl" title="Each arc runs from supplier to importer. First half: goods at export price, i.e. at 0% duty (the 0% colour, width = trade value). At the midpoint the importer's duty is added: the arc turns to the duty-rate colour and widens by the rate (×${VIEW3D.arcStepExaggeration} for visibility).">width = trade</span>
             </div>`;
 
         // Importer view: the circles show everything in scope
@@ -430,27 +432,26 @@ const App = {
         const r = CONFIG.arcRate, dom = Map3D.arcDomain, mid = Map3D.arcMid;
         const max = dom[dom.length - 1];
         const grad = `linear-gradient(90deg, ${r.colors.map((c, i) => `${c} ${dom[i] / max * 100}%`).join(', ')})`;
-        return `<span class="lg-scale-lbl" title="Colour: effective duty rate = estimated duties ÷ trade value">rate 0%</span>
+        return `<span class="lg-scale-lbl" title="Colour: effective duty rate = estimated duties ÷ trade value">0%</span>
             <span class="lg-arcrate-wrap"><span class="lg-arcrate" style="background:${grad}"></span><span class="lg-arcmid-tick" style="left:${mid / max * 100}%"></span></span><span class="lg-scale-lbl">${+max.toFixed(1)}%+</span>
-            <span class="lg-scale-lbl" title="Neutral grey = world average effective duty rate on the selected goods (trade-weighted, all corridors with tariff data)">grey = world avg ${fmtPct(mid, 2)}</span>
+            <span class="lg-scale-lbl" title="The tick marks the world average effective duty rate on the selected goods (trade-weighted, all corridors with tariff data): UN yellow. Paler = below average, orange to brown = above.">avg ${fmtPct(mid, 2)}</span>
 `;
     },
 
-    // 3×3 bivariate key: need (rows, bottom→top) × tariff (columns, left→right)
-    _bivLegendHTML() {
-        const b = this._biv || Data.bivariate();
-        const cells = [2, 1, 0].map(ni => [0, 1, 2].map(ti =>
-            `<span class="biv-cell${ni === 2 && ti === 2 ? ' biv-hh' : ''}" style="background:${CONFIG.bivariate[ni][ti]}"
-                title="Need ${['low', 'mid', 'high'][ni]} · tariff ${['low', 'mid', 'high'][ti]}"></span>`).join('')).join('');
-        return `<div class="legend-section legend-biv" title="Tertiles over ${b.n} economies. Need breaks: ${fmtPct(b.nb[0])} / ${fmtPct(b.nb[1])} without safe water. Tariff breaks: ${fmtPct(b.tb[0])} / ${fmtPct(b.tb[1])} (${STATE.duty}).">
-                <span class="legend-section-label">Need × tariff</span>
-                <span class="biv-axis biv-y">need ↑</span>
-                <span class="biv-grid">${cells}</span>
-                <span class="biv-axis">tariff →</span>
-                <span class="lg-scale-lbl biv-note"><span class="biv-hh-dot"></span>high need · high tariff</span>
-                <span class="lg-swatch lg-nodata" title="No data"></span><span class="lg-scale-lbl">n/a</span>
-            </div>`;
+    // Small coloured square used as a colour key next to a word
+    _chip(color) { return `<i class="lg-chip" style="background:${color}"></i>`; },
+
+    // One sentence that says what each colour on the map means (chips repeat the map colours)
+    _keySentence() {
+        const duty = STATE.flowMetric === 'duty' ? 'duties paid' : 'imports';
+        const need = `${this._chip(CONFIG.need.colors[4])}Ground = population without safely managed drinking water`;
+        const tariff = `import tariff (${STATE.duty === 'MFN' ? 'MFN' : 'applied'}, latest year)`;
+        if (STATE.view === '2d') {
+            return `${need} · ${this._chip(CONFIG.tariff.colors[0])}${this._chip(CONFIG.tariff.colors[2])}Circle colour = ${tariff}: blue below, red above the median (${fmtPct(TARIFF_SCALE.median)}) · circle size = ${duty}`;
+        }
+        return `${need} · ${this._chip(CONFIG.tariff.colors[0])}${this._chip(CONFIG.tariff.colors[2])}Walls = ${tariff} (blue below, red above the median ${fmtPct(TARIFF_SCALE.median)}) · ${this._chip(CONFIG.arcRate.colors[2])}Circles = ${duty}`;
     },
+
 
     // ── KPIs ───────────────────────────────────────────────────────────
     renderKPIs() {
@@ -534,7 +535,7 @@ const App = {
                 <div class="tt-row"><span>Effective duty rate</span><b class="tt-tariff">${d.duty != null && d.value ? fmtPct(d.duty / d.value * 100, 1) : '—'}</b></div>
                 ${STATE.countries[d.exporter]?.eu && STATE.countries[d.importer]?.eu ? '<div class="tt-row"><span>Intra-EU trade</span><b>duty-free</b></div>' : ''}
                 <div class="tt-row"><span>Importer's ${STATE.duty === 'MFN' ? 'MFN' : 'applied'} tariff (simple avg.)</span><b class="tt-tariff">${t ? fmtPct(t.value) : 'no data'}</b></div>
-                <div class="tt-row"><span>Importer: no safe water</span><b class="tt-need">${w ? fmtPct(w.without) : 'no data'}</b></div>
+                <div class="tt-row"><span>Importer: without safely managed water</span><b class="tt-need">${w ? fmtPct(w.without) : 'no data'}</b></div>
                 ${this._mixHTML(d)}
                 <div class="tt-foot">${prod} · click to open ${Data.name(d.importer)}</div>`;
         }

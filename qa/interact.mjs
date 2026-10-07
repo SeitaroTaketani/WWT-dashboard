@@ -22,6 +22,8 @@ const ok =(cond, msg) => { if (!cond) problems.push('FAIL: ' + msg); else consol
 
 await page.goto(BASE);
 await page.waitForFunction(() => window.__wwtReady === true, null, { timeout: 60000 });
+// Colour scale centre = median economy for the default goods / measure (all 16 goods, MFN: 3.53% over 196 economies)
+ok(/median 3\.5%/.test(await page.textContent('#legend-content')), 'tariff colour scale is centred on the median economy (3.5%)');
 const kpi = async () => page.evaluate(() => ({
     high: document.getElementById('kpi-need-high').textContent,
     low: document.getElementById('kpi-need-low').textContent,
@@ -153,10 +155,12 @@ const [dl2] = await Promise.all([page.waitForEvent('download'), page.click('#exp
 await dl2.saveAs(path.join(OUT, await dl2.suggestedFilename()));
 ok(true, 'countries CSV downloaded: ' + (await dl2.suggestedFilename()));
 
-// Bivariate view toggle + arc metric toggle
-await page.click('#view-group [data-view="biv"]');
+// 2D view toggle + arc metric toggle
+await page.click('#view-group [data-view="2d"]');
 await page.waitForTimeout(1200);
-ok(page.url().includes('v=biv') && await page.isVisible('.legend-biv'), 'bivariate view shows 3x3 key');
+ok(page.url().includes('v=2d') && !(await page.isVisible('#wall-scale')) && /colour = tariff/.test(await page.textContent('#legend-content')), '2D view: no wall ruler, circle colour = tariff in the legend');
+const circleCols = await page.evaluate(() => new Set(window.Map3D.nodeGroup.children.filter(m => m.userData.iso).map(m => m.material.color.getHexString())).size);
+ok(circleCols > 1, `2D circles are coloured by tariff (${circleCols} distinct colours)`);
 await page.click('#metric-group [data-metric="value"]');
 await page.waitForTimeout(500);
 ok(page.url().includes('m=value') && /size = trade/.test(await page.textContent('#legend-content')), 'size metric switches to trade value');
@@ -209,6 +213,34 @@ await page.click('#panel-close-btn');
 await Promise.all([page.waitForEvent('load'), page.evaluate(() => { location.hash = 'y=2024&p=all&d=MFN&r=Global'; })]);
 await page.waitForFunction(() => window.__wwtReady === true, null, { timeout: 60000 });
 await page.waitForTimeout(800);
+
+// Analysis panel (global, all goods, MFN): headline, tooltip, threshold shared with the High need switch, missing-data explanation
+const insight = await page.textContent('#ap-insight');
+ok(/Where safely managed water is scarcest/.test(insight) && /6\.4%/.test(insight) && /1\.2%/.test(insight), 'panel headline states the finding (6.4% vs 1.2%)');
+ok(/at least 52%/.test(await page.textContent('#analysis-note')), 'high need threshold = the High need switch cut-off (52%)');
+const hit = await page.locator('.sc-hit[aria-label^="Ethiopia"]').first().boundingBox();
+await page.mouse.move(hit.x + hit.width / 2, hit.y + hit.height / 2);
+await page.waitForTimeout(300);
+const tipTxt = await page.textContent('#sc-tip');
+ok(await page.isVisible('#sc-tip') && /Ethiopia/.test(tipTxt) && /11\.5%/.test(tipTxt), 'scatter hover shows a tooltip with the numbers');
+await page.mouse.move(700, 500);
+await page.evaluate(() => window.App.focusCountry('KEN'));
+await page.waitForTimeout(800);
+ok(/Kenya has no safely-managed-water estimate/.test(await page.textContent('#sc-missing')), 'economy without a water estimate: the chart says why it is not shown');
+await page.click('#panel-close-btn');
+
+// Resizable analysis panel: dragging the edge widens it (the map follows), double-click resets
+const apW0 = (await page.locator('#analysis-panel').boundingBox()).width;
+const rz = await page.locator('#ap-resizer').boundingBox();
+await page.mouse.move(rz.x + rz.width / 2, rz.y + 200);
+await page.mouse.down();
+await page.mouse.move(rz.x + rz.width / 2 + 160, rz.y + 200, { steps: 6 });
+await page.mouse.up();
+const apW1 = (await page.locator('#analysis-panel').boundingBox()).width;
+const mapX = (await page.locator('#map-container').boundingBox()).x;
+ok(apW1 > apW0 + 100 && Math.abs(mapX - apW1) < 3, `dragging the panel edge widens it (${Math.round(apW0)} -> ${Math.round(apW1)} px) and the map follows`);
+await page.dblclick('#ap-resizer');
+ok(Math.abs((await page.locator('#analysis-panel').boundingBox()).width - apW0) < 2, 'double-click resets the panel width');
 {
     const mix = await page.evaluate(() => {
         const d = window.__STATE.allFlows.find(f => f.exporter === 'CAN' && f.importer === 'ETH');

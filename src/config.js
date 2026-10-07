@@ -24,8 +24,8 @@ export const CONFIG = {
         'north-north': 'North → North',
     },
 
-    // Ground choropleth: % of population WITHOUT safely managed drinking water.
-    // Sequential single hue (UNCTAD purple) so it never competes with the red tariff walls.
+    // One variable = one hue, in every view:  need = UN purple · tariff = UN red (blue where below the median) · duties/trade = UN yellow.
+    // Ground choropleth: % of population WITHOUT safely managed drinking water (sequential UN purple: no "water" or good/bad connotation, unlike blue).
     need: {
         domain: [0, 20, 40, 60, 80, 100],
         colors: ['#f4f0f6', '#e2d3e7', '#c7a9d0', '#a978b6', '#8a4f9e', '#5e2b75'],
@@ -34,28 +34,22 @@ export const CONFIG = {
         border: '#ffffff',   // UN cartographic standard: white borders
     },
 
-    // Bivariate palette [need tertile][tariff tertile]: grey → purple (need) × grey → UNCTAD red (tariff);
-    // the top-right cell (high need · high tariff) is the darkest wine colour.
-    bivariate: [
-        ['#e6e1dd', '#f0b3c0', '#e45a74'],
-        ['#cbb8d6', '#c98aa6', '#b8405f'],
-        ['#9a76b2', '#8e4f86', '#6e1a45'],
-    ],
-
-    // Arc colour by effective duty rate (duty ÷ trade value, %): diverging around the WORLD AVERAGE
-    // effective rate for the selected goods / measure (computed at run time, e.g. 2.45 % for all goods, MFN, 2024).
-    // UNCTAD water blue = below world average, neutral grey = average, UNCTAD red = above; 'cap' = darkest red.
+    // Duties (circles and arcs) in UN yellow, so they never share a hue with the purple need ground or the red tariff walls.
+    // Colour = effective duty rate (duty ÷ trade value, %), anchored on the WORLD AVERAGE effective rate for the selected
+    // goods / measure (computed at run time, e.g. 2.45 % for all goods, MFN, 2024). Stops sit at 0, ½ average, average,
+    // between average and cap, cap: grey (0 %, shipment before duty) → pale yellow → UN yellow (= average) → orange → brown.
     arcRate: {
         cap: 15,
-        colors: ['#0077b8', '#5aa9dd', '#d9cfc9', '#e4476a', '#8a1538'],
+        colors: ['#8c8279', '#e8d28f', '#fbaf17', '#e07b00', '#8a4300'],
     },
 
-    // Tariff walls: height and colour both encode the simple-average tariff (%).
+    // Tariffs: wall height (3D) is the absolute simple-average tariff (%), capped. Colour (walls, 2D circles, scatter dots) is
+    // diverging around the MEDIAN economy for the selected goods / measure (see TARIFF_SCALE below): UN blue = below the
+    // median, neutral grey = at it, UN red = above, dark red = the cap.
     tariff: {
         cap: 20,                                   // % at which the wall stops growing
         guides: [5, 10, 20],                       // reference levels drawn on the ruler / focus rings
-        colors: ['#cfc5bf', '#f47a94', '#eb1f48', '#9b1830'],   // neutral grey → UNCTAD red ramp (low tariffs recede)
-        domain: [0, 5, 10, 20],
+        colors: ['#2f86c4', '#e9e5e2', '#eb1f48', '#9b1830'],   // below median · median · above · cap
     },
 
 };
@@ -80,6 +74,7 @@ export const VIEW3D = {
     regionArcs: 14,           // 'By region' view: exporter → importing-region corridors
     hoverArcs: 8,             // supplier arcs drawn when hovering an economy
     circleMaxRadius: 9,       // scene units (world ≈ 550 wide) for the largest duty payer
+    circleMinRadius2d: 1.6,   // 2D view: smallest circle, so small heavily taxed economies stay visible
     arcStepAt: 0.5,           // share of the arc where the duty is added (same place on every arc)
     arcStepExaggeration: 4,   // extra width after the step = width × rate × this (tariffs of 1–12 % are invisible at 1×)
     labelTopTariff: 6,        // number of highest walls labelled by default
@@ -120,7 +115,7 @@ export const STATE = {
     flowMetric: 'duty',      // arcs: 'duty' (estimated duties paid) | 'value' (trade value)
     arcColor: 'rate',
     flowView: 'importers',   // arcs shown: 'importers' (none; importer circles) | 'top' | 'region' | 'all'        // arc colour: 'rate' (effective duty rate) | 'ns' (North/South category)
-    view: '3d',              // '3d' (tariff walls) | 'biv' (bivariate need × tariff, top-down)     // 'all' | 'high' (highest-need quarter, global quartiles)
+    view: '3d',              // '3d' (tariff walls, tilted) | '2d' (flat, top-down; importer circles coloured by tariff)     // 'all' | 'high' (highest-need quarter, global quartiles)
     focusedIso: null,
 
     // loaded data
@@ -133,3 +128,19 @@ export const STATE = {
     effectiveThreshold: 0,
     totalScope: 0,
 };
+
+// Tariff colour scale, re-centred on the median economy whenever the goods / measure change (Data.computeTariffView).
+// Stops: 0, median, 40 % of the way from the median to the cap, cap. `mid` is the median kept within a range the
+// shader can interpolate (> 0, well below the cap); `median` is the true value shown in legends.
+export const TARIFF_SCALE = {
+    median: 3.5, mid: 3.5, domain: [0, 3.5, 10, 20], _scale: null,
+    set(median) {
+        const cap = CONFIG.tariff.cap;
+        this.median = Number.isFinite(median) ? median : this.median;
+        this.mid = Math.min(Math.max(this.median, 0.25), cap * 0.6);
+        this.domain = [0, this.mid, this.mid + (cap - this.mid) * 0.4, cap];
+        this._scale = d3.scaleLinear().domain(this.domain).range(CONFIG.tariff.colors).clamp(true);
+    },
+};
+TARIFF_SCALE.set(3.5);
+export const tariffColor = (v) => TARIFF_SCALE._scale(v);

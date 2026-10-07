@@ -1,6 +1,6 @@
 # UNCTAD Wastewater Treatment Technology: Trade & Tariff Monitor
 
-A 2.5D dashboard showing that economies where safe water is scarcest apply the highest tariffs on water and
+A 2.5D dashboard showing that economies with the least access to safely managed drinking water apply the highest tariffs on water and
 wastewater treatment (WWT) equipment, together with bilateral trade in that equipment.
 
 ![Default view](docs/screenshots/default.png)
@@ -76,11 +76,14 @@ The browser is found automatically (`PW_CHROME` overrides it); otherwise run `np
 
 ## Tuning the look
 
-Everything visual that is likely to need adjustment is in `src/config.js`:
+Everything visual that is likely to need adjustment is in `src/config.js`. Colour system: **one variable = one hue** in every view — need = UN purple, tariff = UN red above / UN blue below the median economy,
+duties/trade = UN yellow (grey = zero / no data). Keep new encodings off those three hues.
+The 2D view keeps the ground as need only and puts the tariff on the importer circles (colour); 3D puts it on walls.
 
 - `VIEW3D.elevationDeg` (default 52°), `topViewElevationDeg` (80°), `wallMaxHeight`, `defaultZoom`
 - `CONFIG.tariff.colors / domain / cap` (wall colour ramp and height cap)
 - `CONFIG.need.colors / domain` (ground colour ramp)
+- `CONFIG.arcRate.colors` (circle and arc colour by effective duty rate)
 - `CONFIG.flowColors` (arc colours, same as the SHC monitor except N→N in UNCTAD grey)
 
 ## Important: UN map longitude offset

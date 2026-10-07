@@ -8,7 +8,7 @@ body { border-bottom: 4px solid @unblue !important; }
 
 @wall-red:   #eb1f48;
 @wall-dark:  #ab1d37;
-@need-purple:#733d96;
+@need-purple:#733d96;      // UN purple (dark text tone) for need figures
 
 #anim-btn {
   display: flex; align-items: center; gap: 5px;
@@ -222,9 +222,10 @@ body { border-bottom: 4px solid @unblue !important; }
 }
 
 // ── Need vs tariff analysis panel (docked left) ──
-@ap-w: 348px;
+// Panel width: 348 px on laptops, wider on large screens (the chart scales with it), or the user's dragged width (--ap-w).
+:root { --ap-w: clamp(348px, 24vw, 480px); }
 #analysis-panel {
-  position: absolute; left: 0; top: 0; bottom: 0; width: @ap-w; z-index: 25;
+  position: absolute; left: 0; top: 0; bottom: 0; width: var(--ap-w); z-index: 25;
   background: #fff; border-right: 1px solid @ungrey-border; box-shadow: 2px 0 8px rgba(0,0,0,0.06);
   display: none; flex-direction: column;
   &.open { display: flex; }
@@ -232,20 +233,29 @@ body { border-bottom: 4px solid @unblue !important; }
   .ap-title { font-size: 13px; font-weight: 700; color: @unblue-dark; text-transform: uppercase; letter-spacing: 0.05em; }
   .ap-sub { font-size: 10px; color: @ungrey-text; margin-top: 2px; }
   .ap-body { flex: 1; overflow-y: auto; padding: 8px 14px 16px; }
-  .ap-note { font-size: 9.5px; color: @ungrey-text; line-height: 1.4; margin: 2px 0 12px; b { color: @ungrey-dark; } }
+  .ap-note { font-size: 9.5px; color: @ungrey-text; line-height: 1.4; margin: 2px 0 6px; b { color: @ungrey-dark; } }
   .ap-section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-  .ap-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6e1a45; display: inline-flex; align-items: center; gap: 5px; }
+  .ap-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: @wall-dark; display: inline-flex; align-items: center; gap: 5px; }
   .ap-count { font-size: 10px; color: @ungrey-text; }
   @media (max-width: (@bp-md - 1px)) { width: 100%; top: auto; height: 62%; border-right: none; border-top: 1px solid @ungrey-border; box-shadow: 0 -4px 20px rgba(0,0,0,0.12); }
 }
 // Map and its overlays make room for the docked panel (desktop)
 @media (min-width: @bp-md) {
-  body.analysis-open #map-container { left: @ap-w; width: auto; right: 0; }
-  body.analysis-open #view-controls, body.analysis-open #wall-scale { left: calc(@ap-w + 12px); }
-  body.analysis-open #view-hint { left: calc(@ap-w + 52px); }
-  body.analysis-open #map-badge { left: calc(@ap-w + 14px); }
+  body.analysis-open #map-container { left: var(--ap-w); width: auto; right: 0; }
+  body.analysis-open #view-controls, body.analysis-open #wall-scale { left: calc(var(--ap-w) + 12px); }
+  body.analysis-open #view-hint { left: calc(var(--ap-w) + 52px); }
+  body.analysis-open #map-badge { left: calc(var(--ap-w) + 14px); }
   body.analysis-open #scatter-toggle { display: none; }
 }
+// Drag handle on the panel's right edge (desktop only)
+#ap-resizer {
+  position: absolute; top: 0; bottom: 0; right: -4px; width: 9px; z-index: 30; cursor: col-resize; touch-action: none;
+  &::after { content: ''; position: absolute; top: 50%; left: 3px; width: 3px; height: 38px; margin-top: -19px; border-radius: 2px; background: @ungrey-border; transition: background 0.15s; }
+  &:hover::after, &:focus-visible::after, body.ap-resizing &::after { background: @unblue; }
+  &:focus-visible { outline: none; }
+  @media (max-width: (@bp-md - 1px)) { display: none; }
+}
+body.ap-resizing { user-select: none; cursor: col-resize; }
 #scatter-toggle {
   position: absolute; left: 14px; top: 52px; z-index: 21;
   display: flex; align-items: center; gap: 6px; padding: 6px 12px;
@@ -273,17 +283,41 @@ body { border-bottom: 4px solid @unblue !important; }
 .hh-empty { font-size: 11px; color: @ungrey; font-style: italic; padding: 8px 4px; }
 #scatter-svg {
   display: block; overflow: visible; margin-top: 4px;
-  .sc-breaks line { stroke: #fff; stroke-width: 1.5; }
-  .sc-hh-lbl { font-size: 9px; font-weight: 700; fill: #6e1a45; }
+  .sc-hh-zone { fill: @wall-red; opacity: 0.1; }
+  .sc-hh-lbl { font-size: 9px; font-weight: 700; fill: @wall-dark; }
+  .sc-median { stroke: @ungrey; stroke-width: 1; stroke-dasharray: 3 3; }
+  .sc-median-lbl { font-size: 8.5px; fill: @ungrey-text; font-family: @font-family; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
   .sc-axis { font-size: 8.5px; path, line { stroke: @ungrey-border; } text { fill: @ungrey-text; font-family: @font-family; } }
   .sc-axis-title { font-size: 9px; fill: @ungrey-text; font-family: @font-family; }
-  .sc-dot { stroke: #fff; stroke-width: 0.9; cursor: pointer;
-    &.out { opacity: 0.18; pointer-events: none; }
-    &:hover, &.hover, &:focus { stroke: @ungrey-dark; stroke-width: 2; outline: none; }
-    &.focus { stroke: @unblue-dark; stroke-width: 2.5; } }
+  // the high need · high tariff group is emphasised, everyone else is muted
+  .sc-dot { stroke: #fff; stroke-width: 0.9; opacity: 0.6; pointer-events: none;
+    &.hh { opacity: 1; stroke: @ungrey-dark; stroke-width: 1; }
+    &.out { opacity: 0.12; }
+    &.hover { opacity: 1; stroke: @ungrey-dark; stroke-width: 2; }
+    &.focus { opacity: 1; stroke: @unblue-dark; stroke-width: 2.5; } }
+  .sc-hit { fill: transparent; cursor: pointer; outline: none;
+    &.out { pointer-events: none; }
+    &:focus-visible { stroke: @unblue-dark; stroke-width: 2; } }
   .sc-labels text { font-size: 10px; font-weight: 700; fill: @ungrey-dark; font-family: @font-family; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
   .sc-over { font-size: 7px; fill: @wall-dark; }
 }
+.sc-wrap { position: relative; }
+.sc-tip {
+  position: absolute; z-index: 5; pointer-events: none; max-width: 210px;
+  background: #fff; border: 1px solid @ungrey-border; border-radius: @radius-md; box-shadow: 0 3px 12px rgba(0,0,0,0.16);
+  padding: 6px 9px; font-size: 10px; color: @ungrey-text; line-height: 1.4;
+  b { color: @ungrey-dark; }
+  span, em { display: block; }
+  em { font-style: normal; font-weight: 700; color: @wall-dark; margin-top: 2px; }
+}
+.ap-insight { font-size: 12px; line-height: 1.4; color: @ungrey-dark; margin: 2px 0 4px;
+  b:first-child { color: @unblue-dark; } }
+.sc-key { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 9.5px; color: @ungrey-text; margin: 2px 0 6px; }
+.sc-key-item { display: inline-flex; align-items: center; gap: 5px; }
+.sc-ramp { display: inline-block; width: 44px; height: 7px; border-radius: 2px; box-shadow: 0 0 0 0.5px rgba(35,31,32,0.25); }
+.sc-key-dot { fill: #d9cfc9; stroke: @ungrey-text; stroke-width: 0.8; }
+.sc-missing { font-size: 9.5px; color: @ungrey-text; line-height: 1.4; margin: 0 0 12px; font-style: italic;
+  &.focus { color: @ungrey-dark; font-style: normal; font-weight: 600; } }
 
 #map-badge {
   position: absolute; left: 14px; top: 10px; z-index: 18; pointer-events: none;
@@ -297,15 +331,13 @@ body { border-bottom: 4px solid @unblue !important; }
 // ── Duty burden KPIs ──
 .kpi-value-duty { color: @wall-dark !important; }
 
-// ── Bivariate mode ──
-body.view-biv #view-flat, body.view-biv #wall-scale { display: none !important; }
-.legend-biv { align-items: center; }
-.biv-grid { display: inline-grid; grid-template-columns: repeat(3, 9px); grid-template-rows: repeat(3, 9px); gap: 1px; margin: 0 3px; }
-.biv-cell { display: block; width: 9px; height: 9px;
-  &.biv-hh { outline: 1.5px solid @ungrey-dark; outline-offset: -0.5px; } }
-.biv-axis { font-size: 8.5px; color: @ungrey-text; white-space: nowrap; }
-.biv-note { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; }
-.biv-hh-dot { display: inline-block; width: 9px; height: 9px; background: #6e1a45; outline: 1.5px solid @ungrey-dark; outline-offset: -0.5px; }
+// ── 2D mode (flat map, no walls) ──
+body.view-2d #view-flat, body.view-2d #wall-scale { display: none !important; }
+.hh-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: @wall-red; }
+
+// Colour chips: a small square of the map colour next to the word that names it (legend bar, map badge)
+.lg-tariff-wrap { position: relative; display: inline-block; width: 70px; height: 10px; flex-shrink: 0; }
+.lg-chip { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: -0.5px; box-shadow: 0 0 0 0.5px rgba(35,31,32,0.25); flex-shrink: 0; }
 
 // Arc colour key (effective duty rate)
 .lg-arcrate { display: inline-block; width: 60px; height: 5px; border-radius: 2px; flex-shrink: 0; }

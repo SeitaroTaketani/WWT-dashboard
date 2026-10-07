@@ -23,7 +23,8 @@ export const DeepLink = {
         if (l.product) STATE.product = l.product;
         if (l.duty === 'MFN' || l.duty === 'AHS') STATE.duty = l.duty;
         if (l.need === 'high') STATE.importerNeed = 'high';
-        if (l.view === 'biv' || l.view === '3d') STATE.view = l.view;
+        if (l.view === '2d' || l.view === 'biv') STATE.view = '2d';   // 'biv' = links from the old bivariate view
+        else if (l.view === '3d') STATE.view = '3d';
         if (l.metric === 'value' || l.metric === 'duty') STATE.flowMetric = l.metric;
         if (l.arcColor === 'ns' || l.arcColor === 'rate') STATE.arcColor = l.arcColor;
         if (['importers', 'top', 'region', 'all'].includes(l.flowView)) STATE.flowView = l.flowView;

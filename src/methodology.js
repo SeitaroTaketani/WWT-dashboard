@@ -2,9 +2,9 @@ export const METHODOLOGY_HTML = `
 <section class="method-section">
     <h3 class="method-section-title">What the map shows</h3>
     <p class="method-note">Three layers are stacked on an Equal Earth projection, viewed at an angle:
-    the <strong>ground colour</strong> shows how much of the population lacks safely managed drinking water (need),
-    <strong>walls</strong> raised along each economy's border show the tariff it applies to water and wastewater treatment goods (barrier),
-    and <strong>arcs</strong> show bilateral trade in those goods (supply). Economies whose share of the population without safely
+    the <strong>ground colour</strong> (UN purple) shows how much of the population lacks safely managed drinking water (need),
+    <strong>walls</strong> (UN red above, UN blue below the median economy) raised along each economy's border show the tariff it applies to water and wastewater treatment goods (barrier),
+    and <strong>circles and arcs</strong> (UN yellow) show the duties paid on, and the trade in, those goods (supply). One variable, one hue, in every view. Economies whose share of the population without safely
     managed drinking water is highest tend to apply the highest tariffs on the equipment needed to close that gap.</p>
 </section>
 
@@ -83,33 +83,34 @@ export const METHODOLOGY_HTML = `
         <dt>Interpretation</dt>
         <dd>A static, first-order estimate of the extra cost on water treatment equipment. It does not account for exemptions for public utilities or donor projects, for smuggling, or for imports that the tariff prevents.</dd>
         <dt>Circles</dt>
-        <dd>Each importing economy gets a circle: <strong>size</strong> = estimated duties it pays on the selected goods, <strong>colour</strong> = its effective duty rate (same key as the arcs). This is the default view: it shows who pays, and how heavily, without drawing every trade route.</dd>
+        <dd>Each importing economy gets a circle: <strong>size</strong> = estimated duties it pays on the selected goods, <strong>colour</strong> = its effective duty rate (same key as the arcs; in the 2D view the colour is its tariff instead). This is the default view: it shows who pays, and how heavily, without drawing every trade route.</dd>
         <dt>Show</dt>
         <dd><strong>Importers</strong>: circles only; hovering an economy draws its 8 largest supplier corridors. <strong>Top 15</strong>: the 15 largest duty corridors into economies in the global top quarter of need. <strong>Regions</strong>: corridors grouped from each supplier to an importing region (anchored at the trade-weighted centre of that region's importers). <strong>All</strong>: every corridor above the adaptive threshold, with the North/South and threshold filters. Selecting an economy always shows its own corridors. Arcs are static and widen towards the importer, where the duty is paid.</dd>
         <dt>Arc encoding</dt>
-        <dd>Every arc runs from supplier to importer. Its <strong>first half</strong> is the shipment at its export price, i.e. before any duty: it takes the 0% colour of the duty-rate scale (UNCTAD blue), width = trade value. At the <strong>midpoint of every arc</strong> (the same place on all arcs, so small economies are as readable as large ones) the importer's duty is added: the line turns to the duty-rate colour and widens by the rate. The widening is exaggerated ×4 so that rates of 1–12% remain visible. Hover an arc for the exact rate and duty, and for the products shipped on that corridor.</dd>
+        <dd>Every arc runs from supplier to importer. Its <strong>first half</strong> is the shipment at its export price, i.e. before any duty: it takes the 0% colour of the duty-rate scale (grey), width = trade value. At the <strong>midpoint of every arc</strong> (the same place on all arcs, so small economies are as readable as large ones) the importer's duty is added: the line turns to the duty-rate colour and widens by the rate. The widening is exaggerated ×4 so that rates of 1–12% remain visible. Hover an arc for the exact rate and duty, and for the products shipped on that corridor.</dd>
         <dt>Why arcs into the same economy differ</dt>
         <dd>The importer sets a rate per HS code; each supplier ships a different mix of codes. The corridor's effective rate is the trade-weighted mix of the importer's rates, so, for example, a supplier shipping mostly water-purifying machinery (HS 842121) to Ethiopia faces 30%, while one shipping mostly control panels (HS 853710) faces 5%. With a single HS code selected, all arcs into one economy share its rate (except duty-free intra-EU trade). The arc tooltip lists the main products, their share and the importer's rate for each.</dd>
-        <dt>Landed cost of $100</dt>
-        <dd>The side panel shows what $100 of equipment costs once the importer's tariff is added, for the high need · high tariff economies, against the median of the low-need third and of all economies.</dd>
+        <dt>Water need vs import tariff (side panel)</dt>
+        <dd>Each dot is an economy with both a water-need and a tariff estimate; colour = tariff on the map's scale, size = estimated duties paid. The shaded corner is the <strong>high need · high tariff</strong> group: the same need cut-off as the "Importers: High need" switch (top quarter of economies, about the point where a majority lacks safely managed water) and a tariff above the median economy, i.e. the red side of the colour scale. These thresholds are relative, not policy standards; the panel also reports how many economies remain with a stricter tariff cut (top quarter of tariffs). Drag the panel edge to widen the chart. Economies without a safely-managed-water estimate (about a third of those with tariff data, e.g. China) cannot be placed and are listed under the chart. Below it, <strong>cost of $100 of equipment, with tariff</strong> shows what $100 costs once the importer's tariff is added, for each economy in the group against the median of the lowest-need quarter and of all economies.</dd>
         <dt>Arcs</dt>
-        <dd>By default, arc <strong>width</strong> shows the duties paid (USD) and arc <strong>colour</strong> shows the effective duty rate on the corridor (duties ÷ trade value), on a diverging scale centred on the <strong>world average effective duty rate</strong> for the selected goods and measure (e.g. 2.46% for all 16 goods, MFN, 2024): UNCTAD water blue below the world average, neutral grey at it, red above, dark red at 15% or more.
+        <dd>By default, arc <strong>width</strong> shows the duties paid (USD) and arc <strong>colour</strong> shows the effective duty rate on the corridor (duties ÷ trade value), on a scale anchored on the <strong>world average effective duty rate</strong> for the selected goods and measure (e.g. 2.46% for all 16 goods, MFN, 2024; marked by a tick on the legend bar): pale yellow below the world average, UN yellow at it, orange above, brown at 15% or more.
         Switch <strong>Arcs</strong> to "Trade value" for width by trade, and <strong>Colour</strong> to "N/S" for the development-status colours. The display threshold adapts to the chosen measure.</dd>
     </dl>
 </section>
 
 <section class="method-section">
-    <h3 class="method-section-title">Bivariate map (Need × tariff)</h3>
-    <p class="method-note">Economies with both indicators are split into thirds (tertiles) of need and thirds of tariff, for the selected goods and tariff measure.
-    The 3 × 3 colour key combines UNCTAD purple (need) and UNCTAD red (tariff). The darkest cell marks economies with <strong>high need and high tariffs</strong>.
-    The view is top-down and the walls are hidden, because the tariff is already encoded in the colour.</p>
+    <h3 class="method-section-title">2D view</h3>
+    <p class="method-note">The <strong>2D</strong> button flattens the map (top-down, no walls). The ground stays the share of the population without safely
+    managed drinking water, in UN purple. The tariff moves onto the importer circles: <strong>circle colour</strong> = the economy's simple-average tariff on the
+    selected goods (the same scale as the wall colour: blue below, grey at and red above the median economy, dark red at 20%), <strong>circle size</strong> = estimated duties it pays. A dark purple ground with a
+    dark red circle therefore reads as high need and a high tariff. Circles have a minimum size so that small, heavily taxed economies stay visible.</p>
 </section>
 
 <section class="method-section">
     <h3 class="method-section-title">Water access (ground)</h3>
     <dl class="method-dl">
         <dt>Indicator</dt>
-        <dd>100 minus the share of the population using safely managed drinking-water services (SDG 6.1.1), national total, latest year (mostly 2024).</dd>
+        <dd>100 minus the share of the population using safely managed drinking-water services (SDG 6.1.1), national total, latest year (mostly 2024). "Safely managed" means an improved source located on premises, available when needed and free from faecal and priority chemical contamination; the remainder ("without") therefore also includes people who have a basic or limited service, unimproved sources or surface water.</dd>
         <dt>Source</dt>
         <dd>WHO/UNICEF Joint Monitoring Programme (JMP). Hatched land (grey diagonal lines) means no JMP estimate is available (e.g. China, Kenya, Australia). It is deliberately not a colour, so it cannot be mistaken for a low share.</dd>
     </dl>

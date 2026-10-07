@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { CONFIG, STATE, VIEW3D } from './config.js';
+import { CONFIG, STATE, VIEW3D, TARIFF_SCALE } from './config.js';
 
 const getJSON = async (url) => {
     const r = await fetch(url);
@@ -95,6 +95,7 @@ export const Data = {
             if (t) view[iso] = t;
         }
         STATE.tariffView = view;
+        TARIFF_SCALE.set(d3.median(Object.values(view), t => t.value));   // colour centre = median economy
         return view;
     },
 
@@ -337,19 +338,26 @@ export const Data = {
         return high;
     },
 
-    // ── Bivariate classes: need tertile × tariff tertile (economies with both, global) ──
-    bivariate() {
+    // ── The "high need · high tariff" group (analysis panel) ──
+    // Economies with both a need and a tariff estimate (global). High need = the same top-quarter cut-off as the "Importers: High need"
+    // switch (about the share at which a majority lacks safely managed water). High tariff = above the median economy, i.e. the red
+    // side of the colour scale (TARIFF_SCALE.median). `tariffTop` is the stricter top-quarter tariff cut, used for a sensitivity note.
+    // The low-need reference group is the bottom quarter of need.
+    burden() {
         const pts = [];
         for (const [iso, t] of Object.entries(STATE.tariffView)) {
-            const n = this.needOf(iso);
-            if (n != null) pts.push([iso, n, t.value]);
+            const need = this.needOf(iso);
+            if (need != null) pts.push({ iso, need, tariff: t.value });
         }
-        const nb = [1 / 3, 2 / 3].map(p => d3.quantile(pts.map(x => x[1]).sort(d3.ascending), p));
-        const tb = [1 / 3, 2 / 3].map(p => d3.quantile(pts.map(x => x[2]).sort(d3.ascending), p));
-        const cls = {};
-        const bin = (v, b) => (v <= b[0] ? 0 : v <= b[1] ? 1 : 2);
-        for (const [iso, n, t] of pts) cls[iso] = [bin(n, nb), bin(t, tb)];
-        return { nb, tb, cls, n: pts.length };
+        const sorted = (k) => pts.map(p => p[k]).sort(d3.ascending);
+        return {
+            pts, n: pts.length,
+            needHigh: this.highNeedThreshold(),
+            needLow: d3.quantile(sorted('need'), 0.25),
+            tariffHigh: TARIFF_SCALE.median,
+            tariffTop: d3.quantile(sorted('tariff'), 0.75),
+            missing: Object.keys(STATE.tariffView).filter(iso => this.needOf(iso) == null),   // tariff but no water estimate
+        };
     },
 
     // ── The core message: tariffs by need quartile ───────────────────────

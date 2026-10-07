@@ -44,16 +44,23 @@ dashboard speaks of *WWT-related goods*. The grouping is a proposal. It is defin
   (≥ 52.17% without safely managed water). With AHS: $4.57B / $538M.
   The dashboard reproduces these figures exactly (checked by `qa/interact.mjs` against `scripts/validation.json`).
 - Arcs: width = duties paid (USD), colour = effective duty rate on the corridor (duties ÷ trade value, `CONFIG.arcRate`):
-  diverging blue (below) → grey at the **world average effective rate** (trade-weighted over all corridors whose importer has
-  tariff data, recomputed for the selected goods/measure; 2.46% for all goods, MFN, 2024) → red (above), 15%+ darkest.
-  The KPI "Effective duty rate" uses the same definition, so globally it equals the grey midpoint. with a white casing so they stay visible over red walls. "Colour: N/S" restores the development-status colours.
+  pale yellow (below) → UN yellow at the **world average effective rate** (trade-weighted over all corridors whose importer has
+  tariff data, recomputed for the selected goods/measure; 2.46% for all goods, MFN, 2024) → orange (above), 15%+ brown; the first half of
+  each arc (shipment before duty) is grey. The KPI "Effective duty rate" uses the same definition, so globally it equals the yellow midpoint (tick on the legend bar).
+  Arcs have a white casing so they stay visible over red walls. "Colour: N/S" restores the development-status colours.
   Auto thresholds are scaled by 0.05 in duty mode (global floor $500K).
 
-## 3c. Bivariate map
+## 3c. 2D view
 
-Tertiles of need and of tariff over the economies with both indicators, for the active goods and measure. The 3×3 palette
-(`CONFIG.bivariate`) runs from grey (low/low) through purple (need) and red (tariff) to dark wine (high need · high tariff).
-It is shown top-down with the walls hidden.
+Top-down flat map with the walls hidden. The ground is unchanged (need, UN purple). The tariff is carried by the importer circles instead:
+colour = the importer's simple-average tariff for the active goods and measure (`tariffColor`, the same median-centred scale as the wall colour),
+size = estimated duties paid (minimum radius `VIEW3D.circleMinRadius2d`). Economies without tariff data get a grey circle.
+The "high need · high tariff" group (`Data.burden`: need at or above the cut-off of the *Importers: High need* switch, i.e. the top quarter of the 158 economies with a JMP
+estimate (52.2%, about a majority), and a tariff above the median economy `TARIFF_SCALE.median`, i.e. the red side of the colour scale; economies with both) is not a map colour; it drives the shaded corner of the analysis scatter and the list below it.
+The thresholds are relative, not policy standards (the WTO/WITS "international tariff peak" of 15 % applies to single tariff lines, and no economy reaches it as a simple average).
+The panel reports how many economies stay in the group with a stricter tariff cut (top quarter of tariffs); for all 16 goods, 2024: 30 economies (MFN) and 21 of them remain; with AHS 28 and 23.
+The scatter uses linear axes, a dashed line at the median tariff (the colour centre), a tooltip per dot, and states which economies lack a
+water estimate (and therefore cannot be placed).
 
 ## 4. Water-access need
 
@@ -80,7 +87,7 @@ Spearman rank correlation between need and MFN tariff: 0.51 (n = 135).
 - **Walls**: each economy's outline is projected to Equal Earth unit coordinates, pulled 0.0035 units inwards (shapely `buffer(-d)`)
   so that neighbours do not share a line, and simplified. Economies too small to survive the inset (78, mostly SIDS and territories)
   get a symbolic 9-sided ring around their label point.
-- Wall height is linear in the tariff up to a 20% cap. Colour follows the same value (grey at 0% → UNCTAD red at 10% → dark red at 20%).
+- Wall height is linear in the tariff up to a 20% cap. Colour is diverging around the **median economy** for the selected goods and measure (all economies with data; 3.53% for all 16 goods, MFN): UN blue below, neutral grey at the median, UNCTAD red above, dark red at the 20% cap (`TARIFF_SCALE`, recomputed in `Data.computeTariffView`). Height stays the absolute tariff.
   Opacity also increases with the tariff, so low-tariff walls recede.
 - **Longitude offset**: the UN TopoJSON is stored relative to a central meridian of ~11.31°E. Label points and other real
   coordinates are rotated by `CONFIG.geoLonOffset` before projection (measured on Cap-Vert −11.298, Cape Agulhas −11.311).

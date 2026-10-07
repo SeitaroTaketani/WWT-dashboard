@@ -52,7 +52,7 @@ export const Panel = {
         let html = `
         <div class="si-kpi-grid cols-3">
             <div class="si-kpi-card need">
-                <div class="si-kpi-label">No safe water</div>
+                <div class="si-kpi-label">Without safely managed water</div>
                 <div class="si-kpi-value">${w ? fmtPct(w.without) : '—'}</div>
                 <div class="si-kpi-sub">${w ? `urban ${fmtPct(w.urban)} · rural ${fmtPct(w.rural)}` : 'no JMP estimate'}</div>
             </div>
