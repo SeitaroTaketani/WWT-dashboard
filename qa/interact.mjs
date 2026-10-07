@@ -24,6 +24,10 @@ await page.goto(BASE);
 await page.waitForFunction(() => window.__wwtReady === true, null, { timeout: 60000 });
 // Colour scale centre = median economy for the default goods / measure (all 16 goods, MFN: 3.53% over 196 economies)
 ok(/median 3\.5%/.test(await page.textContent('#legend-content')), 'tariff colour scale is centred on the median economy (3.5%)');
+ok(!page.url().includes('v=') && !(await page.isVisible('#wall-scale')) && await page.isVisible('#view-group [data-view="2d"].active'), 'default view is 2D (no wall ruler, no v= in the link)');
+// The checks below up to the 2D section run in the 3D view (walls, wall labels)
+await page.click('#view-group [data-view="3d"]');
+await page.waitForTimeout(1200);
 const kpi = async () => page.evaluate(() => ({
     high: document.getElementById('kpi-need-high').textContent,
     low: document.getElementById('kpi-need-low').textContent,
@@ -158,7 +162,7 @@ ok(true, 'countries CSV downloaded: ' + (await dl2.suggestedFilename()));
 // 2D view toggle + arc metric toggle
 await page.click('#view-group [data-view="2d"]');
 await page.waitForTimeout(1200);
-ok(page.url().includes('v=2d') && !(await page.isVisible('#wall-scale')) && /colour = tariff/.test(await page.textContent('#legend-content')), '2D view: no wall ruler, circle colour = tariff in the legend');
+ok(!page.url().includes('v=') && !(await page.isVisible('#wall-scale')) && /colour = tariff/.test(await page.textContent('#legend-content')), '2D view: no wall ruler, circle colour = tariff in the legend');
 const circleCols = await page.evaluate(() => new Set(window.Map3D.nodeGroup.children.filter(m => m.userData.iso).map(m => m.material.color.getHexString())).size);
 ok(circleCols > 1, `2D circles are coloured by tariff (${circleCols} distinct colours)`);
 await page.click('#display-btn');   // size / arc colour live in the Display popover
@@ -175,6 +179,7 @@ ok(await page.isVisible('.lg-arcrate'), 'arc colour = duty rate legend');
 ok(/Duties · duty rate/.test(await page.textContent('#display-summary')), 'Display button summarises the settings');
 await page.click('#view-group [data-view="3d"]');
 await page.waitForTimeout(1000);
+ok(page.url().includes('v=3d') && await page.isVisible('#wall-scale'), '3D view: link records v=3d, wall ruler shown');
 ok(!(await page.isVisible('#display-pop')), 'Display popover closes on an outside click');
 
 // PNG map export

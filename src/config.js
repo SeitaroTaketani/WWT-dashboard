@@ -115,7 +115,7 @@ export const STATE = {
     flowMetric: 'duty',      // arcs: 'duty' (estimated duties paid) | 'value' (trade value)
     arcColor: 'rate',
     flowView: 'importers',   // arcs shown: 'importers' (none; importer circles) | 'top' | 'region' | 'all'        // arc colour: 'rate' (effective duty rate) | 'ns' (North/South category)
-    view: '3d',              // '3d' (tariff walls, tilted) | '2d' (flat, top-down; importer circles coloured by tariff)     // 'all' | 'high' (highest-need quarter, global quartiles)
+    view: '2d',              // '2d' (flat, top-down; importer circles coloured by tariff; the default) | '3d' (tariff walls, tilted)     // 'all' | 'high' (highest-need quarter, global quartiles)
     focusedIso: null,
 
     // loaded data

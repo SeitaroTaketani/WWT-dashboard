@@ -18,7 +18,7 @@ English UI. UNCTAD house style is the top design priority. Read `README.md` for 
 - Walls are stored in Equal Earth unit coordinates (y down): use `d3.geoEqualEarth().scale(1).translate([0, 0])`.
 - `map3d.js` renders on demand: after changing the scene call `Map3D.invalidate()` (sets a dirty flag read by `_tick`).
   QA runs on software GL (SwiftShader), so its fps/timing numbers are pessimistic.
-- The deep link is the URL hash (`#y=2024&p=all&d=MFN&r=Global&…`, see `src/deepLink.js`); `hashchange` reloads the page.
+- The deep link is the URL hash (`#y=2024&p=all&d=MFN&r=Global&…`, see `src/deepLink.js`); `hashchange` reloads the page. 2D is the default view (`STATE.view`): only `v=3d` is written to the link, so older links without `v` open in 2D.
 - Tunables (camera, wall height, arc widths, colours) live in `src/config.js` (`VIEW3D`, `CONFIG`).
 
 ## Verify a change

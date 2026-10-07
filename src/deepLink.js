@@ -35,7 +35,7 @@ export const DeepLink = {
         const p = new URLSearchParams({ y: STATE.year, p: STATE.product, d: STATE.duty, r: STATE.region });
         if (STATE.focusedIso) p.set('c', STATE.focusedIso);
         if (STATE.importerNeed === 'high') p.set('n', 'high');
-        if (STATE.view !== '3d') p.set('v', STATE.view);
+        if (STATE.view !== '2d') p.set('v', STATE.view);   // 2D is the default view, so only 3D is written to the link
         if (STATE.flowMetric !== 'duty') p.set('m', STATE.flowMetric);
         if (STATE.arcColor !== 'rate') p.set('k', STATE.arcColor);
         if (STATE.flowView !== 'importers') p.set('f', STATE.flowView);
