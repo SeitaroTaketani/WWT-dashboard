@@ -16,7 +16,7 @@
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: @ungrey-dark;
   cursor: pointer;
   transition: background 0.12s;
@@ -98,6 +98,7 @@
   #legend-panel {
     position: fixed !important;
     flex-direction: column !important;
+    align-items: stretch !important;
     top: auto !important;
     left: 12px !important;
     right: 12px !important;
@@ -196,11 +197,9 @@
     flex-shrink: 0;
 
     span {
-      font-size: 13px;
+      font-size: 16px;
       font-weight: 700;
       color: @ungrey-dark;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
     .btn-close {
@@ -228,30 +227,30 @@
     margin-bottom: 20px;
 
     .section-label {
-      font-size: 10px;
-      font-weight: 700;
+      font-size: 12.5px;
+      font-weight: 600;
       color: @ungrey-text;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
       margin-bottom: 8px;
     }
   }
 
+  // Choice chips: hairline outline; the selected one is navy text in a 2px navy outline (no fill)
   .btn-toggle-lg {
-    padding: 10px 16px;
-    font-size: 13px;
-    font-weight: 700;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
     font-family: @font-family;
-    border-radius: @radius-lg;
-    border: none;
-    background: @unblue-bg;
+    border-radius: @radius-sm;
+    border: 1px solid @ungrey-border;
+    background: #fff;
     color: @ungrey-text;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+    transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
 
     &.active {
-      background: @unblue-dark;
-      color: #fff;
+      border-color: @unblue-dark;
+      box-shadow: inset 0 0 0 1px @unblue-dark;
+      color: @unblue-dark;
     }
   }
 
@@ -261,8 +260,8 @@
     gap: 12px;
     padding: 12px;
     border-radius: @radius-lg;
-    border: 1px solid @ungrey-bg;
-    background: @unblue-bg;
+    border: 1px solid @ungrey-border;
+    background: #fff;
     cursor: pointer;
 
     input[type="checkbox"] {
@@ -272,16 +271,16 @@
     }
 
     span {
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 600;
     }
   }
 
   select.sheet-select {
     width: 100%;
-    background: @unblue-bg;
-    font-size: 13px;
-    font-weight: 700;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
     color: @ungrey-dark;
     padding: 12px;
     border-radius: @radius-lg;
@@ -297,11 +296,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: @unblue-bg;
+    background: #fff;
     color: @ungrey-dark;
     border: 1px solid @ungrey-border;
     border-radius: @radius-lg;
     padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
     transition: border-color 0.15s;
 

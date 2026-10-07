@@ -49,24 +49,11 @@ export const Panel = {
         const ahs = Data.tariffFor(iso, 'AHS', idx);
         const tot = Data.countryTotals(iso);
 
-        let html = `
-        <div class="si-kpi-grid cols-3">
-            <div class="si-kpi-card need">
-                <div class="si-kpi-label">Without safely managed water</div>
-                <div class="si-kpi-value">${w ? fmtPct(w.without) : '—'}</div>
-                <div class="si-kpi-sub">${w ? `urban ${fmtPct(w.urban)} · rural ${fmtPct(w.rural)}` : 'no JMP estimate'}</div>
-            </div>
-            <div class="si-kpi-card tariff">
-                <div class="si-kpi-label">MFN tariff</div>
-                <div class="si-kpi-value">${mfn ? fmtPct(mfn.value) : '—'}</div>
-                <div class="si-kpi-sub">${mfn ? `${mfn.year} · ${mfn.n} HS lines` : 'no data'}</div>
-            </div>
-            <div class="si-kpi-card applied">
-                <div class="si-kpi-label">Applied (AHS)</div>
-                <div class="si-kpi-value">${ahs ? fmtPct(ahs.value) : '—'}</div>
-                <div class="si-kpi-sub">${ahs ? `${ahs.year} · incl. preferences` : 'no data'}</div>
-            </div>
-        </div>`;
+        let html = this._stats([
+            { cls: 'need', label: 'Without safely managed water', value: w ? fmtPct(w.without) : '—', sub: w ? `urban ${fmtPct(w.urban)} · rural ${fmtPct(w.rural)}` : 'no JMP estimate' },
+            { cls: 'tariff', label: 'MFN tariff', value: mfn ? fmtPct(mfn.value) : '—', sub: mfn ? `${mfn.year} · ${mfn.n} HS lines` : 'no data' },
+            { label: 'Applied tariff (AHS)', value: ahs ? fmtPct(ahs.value) : '—', sub: ahs ? `${ahs.year} · incl. preferences` : 'no data' },
+        ]);
 
         html += this._rankNarrative(iso, w, STATE.duty === 'MFN' ? mfn : ahs);
         html += this._groupBars(iso);
@@ -76,6 +63,12 @@ export const Panel = {
         html += this._hsTable(iso);
         html += `<div class="si-foot">Goods: ${Data.productLabel()}. Tariffs: WITS/TRAINS simple averages. Trade: UN Comtrade, importer-reported with exporter mirror fallback.</div>`;
         $('panel-body').innerHTML = html;
+    },
+
+    // Three figures in a row, separated by hairlines (no tinted cards): label, value, one line of context
+    _stats(items) {
+        return `<div class="ps-stats">${items.map(i => `<div class="ps-stat ${i.cls || ''}">
+            <div class="ps-label">${i.label}</div><div class="ps-value">${i.value}</div>${i.sub ? `<div class="ps-sub">${i.sub}</div>` : ''}</div>`).join('')}</div>`;
     },
 
     _rankNarrative(iso, w, t) {
@@ -121,12 +114,11 @@ export const Panel = {
         if (!tot) return '';
         return `<div class="si-section">
             <div class="si-label">Trade in ${STATE.year}</div>
-            <div class="si-kpi-grid cols-3 compact">
-                <div class="si-kpi-card"><div class="si-kpi-label">Imports</div><div class="si-kpi-value">${fmtUSD(tot.imp)}</div></div>
-                <div class="si-kpi-card tariff"><div class="si-kpi-label">Est. duties paid (${STATE.duty})</div><div class="si-kpi-value">${tot.duty != null ? fmtUSD(tot.duty) : '—'}</div>
-                    <div class="si-kpi-sub">${tot.duty != null && tot.imp ? `${fmtPct(tot.duty / tot.imp * 100, 2)} of imports` : 'no tariff data'}</div></div>
-                <div class="si-kpi-card"><div class="si-kpi-label">Exports</div><div class="si-kpi-value">${fmtUSD(tot.exp)}</div></div>
-            </div>
+            ${this._stats([
+                { label: 'Imports', value: fmtUSD(tot.imp) },
+                { cls: 'tariff', label: `Est. duties paid (${STATE.duty})`, value: tot.duty != null ? fmtUSD(tot.duty) : '—', sub: tot.duty != null && tot.imp ? `${fmtPct(tot.duty / tot.imp * 100, 2)} of imports` : 'no tariff data' },
+                { label: 'Exports', value: fmtUSD(tot.exp) },
+            ])}
         </div>`;
     },
 
@@ -138,7 +130,7 @@ export const Panel = {
         }
         const W = 320, H = 70;
         const max = d3.max(series, s => Math.max(s.imp, s.exp)) || 1;
-        const x = d3.scalePoint().domain(years).range([4, W - 4]);
+        const x = d3.scalePoint().domain(years).range([14, W - 14]);
         const y = d3.scaleLinear().domain([0, max]).range([H, 4]);
         const line = (k) => d3.line().x(s => x(s.y)).y(s => y(s[k]))(series);
         const cur = series.find(s => s.y === STATE.year);
@@ -155,7 +147,7 @@ export const Panel = {
                 <path d="${line('exp')}" fill="none" stroke="#009edb" stroke-width="1.8"/>
                 ${cur ? `<line x1="${x(cur.y)}" x2="${x(cur.y)}" y1="0" y2="${H}" stroke="#aea29a" stroke-dasharray="2,2"/>
                 <circle cx="${x(cur.y)}" cy="${y(cur.imp)}" r="3" fill="#4f4740"/><circle cx="${x(cur.y)}" cy="${y(cur.exp)}" r="3" fill="#009edb"/>` : ''}
-                ${years.filter((_, i) => i % 2 === 0).map(yr => `<text x="${x(yr)}" y="${H + 12}" text-anchor="middle" font-size="8" fill="#6e6259">${yr}</text>`).join('')}
+                ${years.filter((_, i) => i % 2 === 0).map(yr => `<text x="${x(yr)}" y="${H + 12}" text-anchor="middle" font-size="10" fill="#6e6259">${yr}</text>`).join('')}
             </svg>
         </div>`;
     },
@@ -199,7 +191,7 @@ export const Panel = {
         return `<div class="si-section">
             <div class="si-label">Detail by HS code</div>
             <div class="hs-table-wrap"><table class="si-table hs-table">
-                <thead><tr><th>HS 6</th><th class="ar">MFN</th><th class="ar">AHS</th><th class="ar">Imports ${STATE.year}</th><th class="ar">Est. duty</th></tr></thead>
+                <thead><tr><th>HS 6</th><th class="ar">MFN</th><th class="ar">AHS</th><th class="ar" title="Imports ${STATE.year}">Imports</th><th class="ar" title="Estimated duty paid ${STATE.year}">Duty</th></tr></thead>
                 <tbody>${rows}</tbody>
             </table></div>
         </div>`;

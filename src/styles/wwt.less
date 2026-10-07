@@ -127,67 +127,75 @@ body { border-bottom: 4px solid @unblue !important; }
   .tt-foot { margin-top: 7px; font-size: 10px; color: @ungrey; font-style: italic; }
 }
 
-// ── Country panel ──
+// ── Country panel (right): flat. Figures and hairlines instead of tinted cards; emphasis by weight and a dot ──
 #insight-panel {
   #panel-body { padding: 14px 16px 24px; overflow-y: auto; flex: 1; }
+  #panel-country-name { font-size: 18px; }
+  #panel-country-meta { font-size: 12px; margin-top: 3px; }
 }
-.si-kpi-grid.cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
-.si-kpi-grid.compact .si-kpi-card { padding: 6px 8px; }
-.si-kpi-card {
-  background: @unblue-bg; border: 1px solid @ungrey-border;
-  .si-kpi-sub { font-size: 9px; color: @ungrey-text; margin-top: 2px; line-height: 1.25; }
-  &.need { background: rgba(115,61,150,0.07); border-color: rgba(115,61,150,0.22); .si-kpi-label, .si-kpi-value { color: @need-purple; } }
-  &.tariff { background: rgba(235,31,72,0.07); border-color: rgba(235,31,72,0.22); .si-kpi-label, .si-kpi-value { color: @wall-dark; } }
-  &.applied { .si-kpi-label { color: @ungrey-text; } }
-  .si-kpi-value.pos { color: @ungreen-text; }
-  .si-kpi-value.neg { color: @unred-dark-text; }
+.si-badge { padding: 0; border: 0; border-radius: 0; background: none; font-size: inherit; font-weight: 600; color: @ungrey-dark; }
+
+.ps-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 16px; border-top: 1px solid @ungrey-border; border-bottom: 1px solid @ungrey-border; }
+.ps-stat {
+  padding: 10px 8px 10px 12px; min-width: 0;
+  &:first-child { padding-left: 0; }
+  & + .ps-stat { border-left: 1px solid @ungrey-border; }
+  .ps-label { font-size: 11px; line-height: 1.3; color: @ungrey-text; min-height: 2.6em; }
+  .ps-value { margin: 2px 0; font-size: 20px; font-weight: 700; line-height: 1.2; color: @ungrey-dark; font-variant-numeric: tabular-nums; }
+  .ps-sub { font-size: 11px; line-height: 1.35; color: @ungrey-text; }
+  &.need .ps-value { color: @need-purple; }
+  &.tariff .ps-value { color: @wall-dark; }
 }
-.si-badge.badge-ldc { background: rgba(251,175,23,0.18); color: #7a5200; }
-.si-badge.badge-sids { background: rgba(0,158,219,0.14); color: @unblue-dark-text; }
-.si-narrative-box { font-size: 12px; line-height: 1.55; color: @ungrey-dark; b { color: @unblue-dark; } }
+
+.si-narrative-box { padding: 0; border: 0; border-radius: 0; background: none; margin-bottom: 16px; font-size: 13px; line-height: 1.55; color: @ungrey-dark; b { font-weight: 700; } }
 .si-flag {
-  display: inline-block; margin-bottom: 6px; padding: 2px 8px; border-radius: 999px;
-  background: @wall-red; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.03em;
-  &.si-flag-soft { background: rgba(115,61,150,0.14); color: @need-purple; }
+  display: flex; align-items: center; gap: 7px; margin-bottom: 4px; font-size: 13px; font-weight: 700; color: @ungrey-dark;
+  &::before { content: ''; flex: none; width: 9px; height: 9px; border-radius: 50%; background: @wall-red; }
+  &.si-flag-soft::before { background: @need-purple; }
 }
 .si-section { margin-bottom: 16px; }
-.si-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: @unblue-dark; margin-bottom: 6px; }
-.si-loading { font-size: 11px; color: @ungrey; font-style: italic; }
-.si-legend-max { margin-left: auto; font-size: 9px; color: @ungrey; }
-.si-chart-legend { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-.si-legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: @ungrey-text; }
+.si-label { margin-bottom: 8px; font-size: 13px; font-weight: 700; color: @ungrey-dark; text-transform: none; letter-spacing: 0; }
+.si-loading { font-size: 12px; color: @ungrey-text; }
+.si-legend-max { margin-left: auto; font-size: 11px; color: @ungrey-text; }
+.si-chart-legend { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.si-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: @ungrey-text; }
 .si-legend-swatch { width: 14px; }
-.si-foot { font-size: 9.5px; color: @ungrey; font-style: italic; line-height: 1.4; border-top: 1px solid @ungrey-bg; padding-top: 8px; }
+.si-foot { padding-top: 10px; border-top: 1px solid @ungrey-bg; font-size: 11px; line-height: 1.45; color: @ungrey-text; }
 
-.gb-legend { display: flex; align-items: center; gap: 6px; font-size: 10px; color: @ungrey-text; margin-bottom: 6px; }
+// Tariffs by technology: MFN (red) and applied (pink) bars per technology group
+.gb-legend { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 11.5px; color: @ungrey-text; }
 .gb-key { display: inline-block; width: 12px; height: 6px; border-radius: 1px;
   &.mfn { background: @wall-red; } &.ahs { background: #f47a94; opacity: 0.55; margin-left: 6px; } }
 .gb-row {
-  display: grid; grid-template-columns: 120px 1fr; gap: 8px; align-items: center; padding: 4px 4px; border-radius: 4px;
-  &.active { background: @unblue-bg; }
-  .gb-name { font-size: 11px; color: @ungrey-dark; line-height: 1.2; }
+  display: grid; grid-template-columns: 150px 1fr; gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid #efece9;
+  &.active .gb-name { font-weight: 700; }
+  .gb-name { font-size: 12.5px; color: @ungrey-dark; line-height: 1.2; }
   .gb-bars { display: flex; flex-direction: column; gap: 2px; }
-  .gb-line { display: flex; align-items: center; gap: 4px; height: 8px; }
-  .gb-bar { height: 6px; border-radius: 1px; min-width: 1px; &.mfn { background: @wall-red; } &.ahs { background: #f47a94; opacity: 0.55; } }
-  .gb-val { font-size: 9.5px; font-family: @font-mono; color: @ungrey-text; }
-  .gb-na { font-size: 9.5px; color: @ungrey; }
+  .gb-line { display: flex; align-items: center; gap: 5px; height: 12px; }
+  .gb-bar { height: 7px; border-radius: 1px; min-width: 1px; &.mfn { background: @wall-red; } &.ahs { background: #f47a94; opacity: 0.55; } }
+  .gb-val { font-size: 11px; font-family: @font-mono; color: @ungrey-text; }
+  .gb-na { font-size: 11px; color: @ungrey; }
 }
-.si-partners { display: flex; flex-direction: column; gap: 3px; }
+
+// Top suppliers
+.si-partners { display: flex; flex-direction: column; gap: 2px; }
 .si-partner-row {
-  display: grid !important; grid-template-columns: 110px 1fr auto; gap: 6px; align-items: center; cursor: pointer; padding: 2px 4px; border-radius: 3px;
-  &:hover { background: @unblue-bg; }
-  .sp-name { font-size: 11px; color: @unblue-dark; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  display: grid !important; grid-template-columns: 112px 1fr auto; gap: 8px; align-items: center; cursor: pointer; padding: 3px 4px; border-radius: 3px;
+  &:hover { background: #f8f6f4; }
+  .sp-name { font-size: 12.5px; color: @ungrey-dark; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sp-bar-wrap { height: 6px; background: @ungrey-bg; border-radius: 1px; overflow: hidden; }
   .sp-bar { display: block; height: 100%; }
-  .sp-val { font-size: 9.5px; font-family: @font-mono; color: @ungrey-text; white-space: nowrap; }
+  .sp-val { font-size: 11.5px; font-family: @font-mono; color: @ungrey-text; white-space: nowrap; }
 }
-.hs-table-wrap { max-height: 260px; overflow-y: auto; border: 1px solid @ungrey-bg; border-radius: 4px; }
+
+// Detail by HS code
+.hs-table-wrap { max-height: 260px; overflow: auto; border-top: 1px solid @ungrey-border; }
 .hs-table {
-  width: 100%; border-collapse: collapse; font-size: 10.5px;
-  th { position: sticky; top: 0; background: @unblue-bg; font-size: 9px; text-transform: uppercase; color: @ungrey-text; padding: 4px 6px; text-align: left; }
-  td { padding: 3px 6px; border-top: 1px solid @ungrey-bg; vertical-align: top; }
+  width: 100%; border-collapse: collapse; font-size: 11.5px;
+  th { position: sticky; top: 0; background: #fff; font-size: 11px; font-weight: 600; color: @ungrey-text; padding: 5px 4px; text-align: left; border-bottom: 1px solid @ungrey-border; }
+  td { padding: 4px; border-top: 1px solid #efece9; vertical-align: top; }
   .ar { text-align: right; white-space: nowrap; font-family: @font-mono; }
-  .hs-desc { display: block; color: @ungrey-text; font-size: 9px; line-height: 1.2; max-width: 170px; }
+  .hs-desc { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: @ungrey-text; font-size: 10.5px; line-height: 1.25; max-width: 118px; }   // full text in the cell tooltip
   .muted-row { opacity: 0.45; }
 }
 
@@ -212,7 +220,10 @@ body { border-bottom: 4px solid @unblue !important; }
   #main-header .header-title { padding: 8px 0 6px; }
   #main-header .header-title img.header-logo { width: 28px; height: 28px; margin-top: 2px; }
   #main-header .header-title .header-text h3 { font-size: 16px; }
-  #main-header .header-title .header-text h4 { font-size: 10.5px; }
+  #main-header .header-title .header-text h4 { font-size: 12px; line-height: 1.35; }
+  #main-header .header-sources { display: none; }
+  // the KPI strip scrolls sideways: fade its right edge so that is visible
+  #kpi-bar .kpi-inner { padding-right: 28px; -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
 }
 
 // ── Need vs tariff analysis panel (docked left) ──
@@ -257,7 +268,11 @@ body.ap-resizing { user-select: none; cursor: col-resize; }
   background: #fff; border: 1px solid @unblue; border-radius: 999px; color: @unblue-text;
   font-family: @font-family; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: @shadow-sm;
   &:hover { background: @unblue; color: #fff; }
-  @media (max-width: (@bp-md - 1px)) { top: auto; left: auto; right: 12px; bottom: 64px; }
+  @media (max-width: (@bp-md - 1px)) {
+    top: auto; left: auto; right: 12px; bottom: 64px;
+    padding: 8px 12px; border-color: @ungrey-border; border-radius: @radius-xl; box-shadow: @shadow-md; color: @ungrey-dark; font-size: 11px;
+    &:hover { background: #fff; color: @ungrey-dark; }
+  }
 }
 // Headline: the finding in one sentence, then the numbers behind it
 .ap-insight {
@@ -349,7 +364,14 @@ body.ap-resizing { user-select: none; cursor: col-resize; }
   #mb-year { font-size: 30px; font-weight: 700; color: @unblue-dark; line-height: 1; letter-spacing: -0.02em;
     text-shadow: 0 0 6px @unblue-bg-alt, 0 0 3px @unblue-bg-alt; }
   #mb-meta { font-size: 10px; color: @ungrey-text; line-height: 1.35; text-shadow: 0 0 4px #fff, 0 0 2px #fff; }
-  @media (max-width: (@bp-md - 1px)) { #mb-year { font-size: 22px; } #mb-meta { display: none; } }
+  // Mobile: the blank band above the (landscape) map carries the colour key that the desktop legend bar gives
+  @media (max-width: (@bp-md - 1px)) {
+    right: 12px; align-items: flex-start; gap: 8px;
+    #mb-year { font-size: 24px; }
+    #mb-meta { font-size: 11px; line-height: 1.45; color: @ungrey-dark; max-width: 290px; }
+    // with a sheet open the map is panned under this band: keep only the year
+    body.panel-open &, body.analysis-open & { #mb-meta { display: none; } }
+  }
 }
 
 // ── Duty burden KPIs ──
