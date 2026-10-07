@@ -11,25 +11,24 @@ body { border-bottom: 4px solid @unblue !important; }
 @need-purple:#733d96;      // UN purple (dark text tone) for need figures
 
 #anim-btn {
-  display: flex; align-items: center; gap: 5px;
-  padding: 3px 10px; font-size: 12px; font-family: @font-family;
-  border: 1px solid @unblue; border-radius: 5px;
-  background: transparent; color: @unblue; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; font-size: 13px; font-weight: 600; font-family: @font-family;
+  border: 1px solid @unblue-dark; border-radius: @radius-sm;
+  background: @unblue-dark; color: #fff; cursor: pointer; white-space: nowrap;
   transition: background 0.15s, color 0.15s;
-  &:hover, &.playing { background: @unblue; color: #fff; }
+  &:hover { background: @unblue-darker; }
+  &.playing { background: #fff; color: @unblue-dark; }
 }
-
-.ctrl-product-select { max-width: 250px; }
 
 // ── CSV export menu ──
 #export-wrapper { position: relative; }
 #export-btn {
-  display: flex; align-items: center;
-  padding: 6px 12px; font-size: 12px; font-weight: 600; font-family: @font-family;
-  border: 1px solid @unblue; border-radius: 999px;
-  background: #fff; color: @unblue-text; cursor: pointer; white-space: nowrap;
-  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-  &:hover, &[aria-expanded="true"] { background: @unblue; color: #fff; box-shadow: 0 2px 10px rgba(0,158,219,0.35); }
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 8px; font-size: 13px; font-weight: 600; font-family: @font-family;
+  border: 0; border-radius: @radius-sm;
+  background: transparent; color: @unblue-dark; cursor: pointer; white-space: nowrap;
+  transition: background 0.15s;
+  &:hover, &[aria-expanded="true"] { background: rgba(0,73,144,0.08); }
 }
 #export-menu {
   position: absolute; top: calc(100% + 6px); right: 0; width: 260px; background: #fff;
@@ -57,7 +56,6 @@ body { border-bottom: 4px solid @unblue !important; }
 }
 
 // ── KPI: the core message ──
-.kpi-message .kpi-label { color: @wall-dark; }
 .kpi-value-need { color: @wall-red !important; }
 .kpi-value-gap { color: @wall-dark !important; }
 
@@ -65,8 +63,8 @@ body { border-bottom: 4px solid @unblue !important; }
 .lg-swatch { display: inline-block; width: 16px; height: 10px; border-radius: 1px; flex-shrink: 0; }
 .lg-nodata { margin-left: 6px; border: 1px solid #d6cfc9;
   background: repeating-linear-gradient(135deg, #f7f5f3 0 2px, #b8aea7 2px 3.2px); }
-.lg-wall { display: inline-block; width: 70px; height: 10px; border-radius: 1px; flex-shrink: 0; border-bottom: 2px solid @wall-dark; }
-.lg-scale-lbl { font-size: 9.5px; color: @ungrey-text; white-space: nowrap; margin: 0 3px; }
+.lg-wall { display: inline-block; width: 56px; height: 10px; border-radius: 1px; flex-shrink: 0; border-bottom: 2px solid @wall-dark; }
+.lg-scale-lbl { font-size: 11px; color: @ungrey-text; white-space: nowrap; margin: 0 3px; }
 #legend-content .legend-section { gap: 2px; }
 
 // ── 3D map ──
@@ -195,15 +193,11 @@ body { border-bottom: 4px solid @unblue !important; }
 
 // Mobile: filter sheet open state (SHC mobile.less uses .open)
 @media (max-width: (@bp-md - 1px)) {
-  .ctrl-product-select { max-width: none; }
   #view-controls { bottom: 70px; }
 }
 
-// N→N arcs are UNCTAD grey in this dashboard (SHC header CSS used purple)
-.flow-label.flow-nn span { color: @ungrey-text !important; }
-.flow-label.flow-nn input { accent-color: @ungrey !important; }
 .kpi-value-imp { color: #4f4740 !important; }
-#legend-content { min-width: 0; overflow: hidden; }
+#legend-content { min-width: 0; flex-wrap: wrap; }   // wraps to a second row on narrow screens instead of clipping
 
 #wall-scale {
   position: absolute; left: 12px; bottom: 176px; z-index: 19; pointer-events: none;
@@ -226,17 +220,18 @@ body { border-bottom: 4px solid @unblue !important; }
 :root { --ap-w: clamp(348px, 24vw, 480px); }
 #analysis-panel {
   position: absolute; left: 0; top: 0; bottom: 0; width: var(--ap-w); z-index: 25;
-  background: #fff; border-right: 1px solid @ungrey-border; box-shadow: 2px 0 8px rgba(0,0,0,0.06);
+  background: #fff; border-right: 1px solid @ungrey-border;
   display: none; flex-direction: column;
   &.open { display: flex; }
-  .ap-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 10px 14px 8px; background: @unblue-bg; border-bottom: 1px solid @ungrey-bg; }
-  .ap-title { font-size: 13px; font-weight: 700; color: @unblue-dark; text-transform: uppercase; letter-spacing: 0.05em; }
-  .ap-sub { font-size: 10px; color: @ungrey-text; margin-top: 2px; }
-  .ap-body { flex: 1; overflow-y: auto; padding: 8px 14px 16px; }
-  .ap-note { font-size: 9.5px; color: @ungrey-text; line-height: 1.4; margin: 2px 0 6px; b { color: @ungrey-dark; } }
-  .ap-section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-  .ap-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: @wall-dark; display: inline-flex; align-items: center; gap: 5px; }
-  .ap-count { font-size: 10px; color: @ungrey-text; }
+  #analysis-close {
+    position: absolute; top: 8px; right: 10px; z-index: 2; padding: 4px; line-height: 0;
+    border: 0; border-radius: @radius-sm; background: transparent; color: @ungrey-text; cursor: pointer;
+    &:hover { background: @ungrey-bg; color: @ungrey-dark; }
+  }
+  .ap-body { flex: 1; overflow-y: auto; padding: 10px 16px 18px; }
+  .ap-note { font-size: 11.5px; color: @ungrey-text; line-height: 1.5; margin: 6px 0 0; b { color: @ungrey-dark; } }
+  .ap-section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+  .ap-label { font-size: 13px; font-weight: 700; color: @ungrey-dark; }
   @media (max-width: (@bp-md - 1px)) { width: 100%; top: auto; height: 62%; border-right: none; border-top: 1px solid @ungrey-border; box-shadow: 0 -4px 20px rgba(0,0,0,0.12); }
 }
 // Map and its overlays make room for the docked panel (desktop)
@@ -264,32 +259,23 @@ body.ap-resizing { user-select: none; cursor: col-resize; }
   &:hover { background: @unblue; color: #fff; }
   @media (max-width: (@bp-md - 1px)) { top: auto; left: auto; right: 12px; bottom: 64px; }
 }
-.hh-cols, .hh-row { display: grid; grid-template-columns: 1fr 44px 52px 96px; gap: 6px; align-items: center; }
-.hh-cols { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.04em; color: @ungrey; padding: 0 4px 3px; border-bottom: 1px solid @ungrey-bg;
-  span:not(:first-child) { text-align: right; } }
-#hh-list { display: flex; flex-direction: column; }
-.hh-row {
-  border: none; background: transparent; text-align: left; font-family: @font-family; cursor: pointer;
-  padding: 4px 4px; border-bottom: 1px solid @ungrey-bg; border-radius: 3px;
-  &:hover, &.hover { background: @unblue-bg; }
-  &.focus { background: rgba(0,73,144,0.08); box-shadow: inset 3px 0 0 @unblue-dark; }
-  .hh-name { font-size: 11px; font-weight: 600; color: @unblue-dark; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hh-tariff { font-size: 10.5px; font-family: @font-mono; color: @wall-dark; text-align: right; }
-  .hh-need { font-size: 10.5px; font-family: @font-mono; color: @need-purple; text-align: right; }
-  .hh-duty { position: relative; height: 14px; display: flex; align-items: center; justify-content: flex-end; }
-  .hh-bar { position: absolute; left: 0; top: 4px; height: 6px; background: rgba(110,26,69,0.25); border-radius: 1px; }
-  .hh-val { position: relative; font-size: 9.5px; font-family: @font-mono; color: @ungrey-dark; }
+// Headline: the finding in one sentence, then the numbers behind it
+.ap-insight {
+  margin: 4px 22px 6px 0;
+  .ap-lead { margin: 0 0 4px; font-size: 18px; line-height: 1.24; font-weight: 600; letter-spacing: -0.01em; color: @ungrey-dark; b { color: @wall-dark; font-weight: 700; } }
+  .ap-lead-sub { margin: 0; font-size: 12px; line-height: 1.45; color: @ungrey-text; b { color: @ungrey-dark; font-weight: 600; } }
 }
-.hh-empty { font-size: 11px; color: @ungrey; font-style: italic; padding: 8px 4px; }
+
 #scatter-svg {
   display: block; overflow: visible; margin-top: 4px;
-  .sc-hh-zone { fill: @wall-red; opacity: 0.1; }
-  .sc-hh-lbl { font-size: 9px; font-weight: 700; fill: @wall-dark; }
-  .sc-median { stroke: @ungrey; stroke-width: 1; stroke-dasharray: 3 3; }
-  .sc-median-lbl { font-size: 8.5px; fill: @ungrey-text; font-family: @font-family; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
-  .sc-axis { font-size: 8.5px; path, line { stroke: @ungrey-border; } text { fill: @ungrey-text; font-family: @font-family; } }
-  .sc-axis-title { font-size: 9px; fill: @ungrey-text; font-family: @font-family; }
-  // the high need · high tariff group is emphasised, everyone else is muted
+  // the high need · high tariff group is outlined (dashed) and labelled, not filled
+  .sc-hh-zone { fill: none; stroke: @ungrey-text; stroke-width: 1; stroke-dasharray: 4 3; }
+  .sc-hh-lbl { font-size: 11px; font-weight: 700; fill: @ungrey-dark; font-family: @font-family; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .sc-median { stroke: @ungrey; stroke-width: 1; stroke-dasharray: 2 3; }
+  .sc-median-lbl { font-size: 11px; fill: @ungrey-text; font-family: @font-family; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+  .sc-axis { font-size: 11px; path, line { stroke: @ungrey-border; } text { fill: @ungrey-text; font-family: @font-family; } }
+  .sc-axis-title { font-size: 11px; fill: @ungrey-text; font-family: @font-family; }
+  // everyone else is muted
   .sc-dot { stroke: #fff; stroke-width: 0.9; opacity: 0.6; pointer-events: none;
     &.hh { opacity: 1; stroke: @ungrey-dark; stroke-width: 1; }
     &.out { opacity: 0.12; }
@@ -298,29 +284,64 @@ body.ap-resizing { user-select: none; cursor: col-resize; }
   .sc-hit { fill: transparent; cursor: pointer; outline: none;
     &.out { pointer-events: none; }
     &:focus-visible { stroke: @unblue-dark; stroke-width: 2; } }
-  .sc-labels text { font-size: 10px; font-weight: 700; fill: @ungrey-dark; font-family: @font-family; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
-  .sc-over { font-size: 7px; fill: @wall-dark; }
+  .sc-labels text { font-size: 11px; font-weight: 700; fill: @ungrey-dark; font-family: @font-family; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+  .sc-over { font-size: 8px; fill: @wall-dark; }
 }
 .sc-wrap { position: relative; }
 .sc-tip {
-  position: absolute; z-index: 5; pointer-events: none; max-width: 210px;
-  background: #fff; border: 1px solid @ungrey-border; border-radius: @radius-md; box-shadow: 0 3px 12px rgba(0,0,0,0.16);
-  padding: 6px 9px; font-size: 10px; color: @ungrey-text; line-height: 1.4;
+  position: absolute; z-index: 5; pointer-events: none; max-width: 230px;
+  background: #fff; border: 1px solid @ungrey-border; border-radius: @radius-sm; box-shadow: 0 3px 12px rgba(0,0,0,0.16);
+  padding: 6px 9px; font-size: 11.5px; color: @ungrey-text; line-height: 1.4;
   b { color: @ungrey-dark; }
   span, em { display: block; }
-  em { font-style: normal; font-weight: 700; color: @wall-dark; margin-top: 2px; }
+  em { font-style: normal; font-weight: 700; color: @ungrey-dark; margin-top: 2px; }
 }
-.ap-insight { font-size: 12px; line-height: 1.4; color: @ungrey-dark; margin: 2px 0 4px;
-  b:first-child { color: @unblue-dark; } }
-.sc-keyrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin: 2px 0 6px; }
-.sc-key { flex: 1; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 9.5px; color: @ungrey-text; }
-.sc-switch { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; color: @ungrey-text; cursor: pointer; user-select: none;
-  input { margin: 0; accent-color: @unblue; cursor: pointer; } }
+
+// Key line (colour + size) and the collapsed "How to read"
+.sc-keyrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 12px; margin: 4px 0 6px; }
+.sc-key { display: flex; flex-wrap: wrap; gap: 2px 12px; align-items: center; font-size: 11.5px; color: @ungrey-text; }
 .sc-key-item { display: inline-flex; align-items: center; gap: 5px; }
-.sc-ramp { display: inline-block; width: 44px; height: 7px; border-radius: 2px; box-shadow: 0 0 0 0.5px rgba(35,31,32,0.25); }
 .sc-key-dot { fill: #d9cfc9; stroke: @ungrey-text; stroke-width: 0.8; }
-.sc-missing { font-size: 9.5px; color: @ungrey-text; line-height: 1.4; margin: 0 0 12px; font-style: italic;
-  &.focus { color: @ungrey-dark; font-style: normal; font-weight: 600; } }
+.sc-chip { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+.ap-how {
+  margin-left: auto; font-size: 11.5px; color: @ungrey-text;
+  summary {
+    cursor: pointer; color: @unblue-dark; font-weight: 600; list-style: none; display: inline-flex; align-items: center; gap: 5px;
+    &::-webkit-details-marker { display: none; }
+    &::before { content: 'i'; display: inline-block; width: 14px; height: 14px; border: 1.2px solid @unblue-dark; border-radius: 50%; font-size: 10px; line-height: 11px; text-align: center; font-weight: 700; }
+  }
+  &[open] { flex-basis: 100%; margin-left: 0; }
+}
+
+// Two switches: one map filter, one chart label option
+.ap-opts { display: flex; flex-wrap: wrap; gap: 4px 18px; padding: 7px 0; margin: 4px 0 12px; border-top: 1px solid @ungrey-border; border-bottom: 1px solid @ungrey-border; }
+.ap-opt {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: @ungrey-dark; cursor: pointer; user-select: none;
+  input { margin: 0; accent-color: @unblue-dark; cursor: pointer; }
+}
+.sc-missing { font-size: 11.5px; color: @ungrey-text; line-height: 1.4; margin: 0 0 12px;
+  &:empty { display: none; }
+  &.focus { color: @ungrey-dark; font-weight: 600; } }
+
+// Landed-cost ladder: the bar is the tariff added to $100, the figure is the landed cost
+.ap-sub2 { font-size: 11.5px; line-height: 1.4; color: @ungrey-text; margin: 0 0 6px; }
+.ld-row { display: grid !important; grid-template-columns: minmax(0, 1fr) 110px 54px; gap: 8px; align-items: center; padding: 4px 4px; }
+.hh-row {
+  width: 100%; border: 0; border-bottom: 1px solid #efece9; border-radius: 0; background: transparent; text-align: left; font-family: @font-family; cursor: pointer;
+  &:hover, &.hover { background: #f8f6f4; }
+  &.focus .hh-name { font-weight: 700; &::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: @wall-red; } }
+}
+.hh-name { font-size: 12.5px; font-weight: 500; color: @ungrey-dark; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ld-bar { display: flex; height: 8px; align-items: center; }
+.ld-duty { height: 8px; background: #d0234f; border-radius: 1px; min-width: 1px; }
+.ld-cost { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: @ungrey-dark; text-align: right; white-space: nowrap; }
+#hh-list { display: flex; flex-direction: column; }
+.hh-empty { font-size: 12px; color: @ungrey-text; padding: 8px 4px; }
+#hh-refs { border-bottom: 1px solid @ungrey-border; margin-bottom: 2px; padding-bottom: 2px;
+  .ld-row { border-bottom: 1px solid #efece9; &:last-child { border-bottom: 0; } }
+  .hh-name { color: @ungrey-text; }
+  .ref-low .ld-duty { background: #5aa9dd; } }
+.ap-more { margin-top: 6px; padding: 0; border: 0; background: none; font-family: @font-family; font-size: 12px; font-weight: 600; color: @unblue-dark; cursor: pointer; &:hover { text-decoration: underline; } }
 
 #map-badge {
   position: absolute; left: 14px; top: 10px; z-index: 18; pointer-events: none;
@@ -336,10 +357,9 @@ body.ap-resizing { user-select: none; cursor: col-resize; }
 
 // ── 2D mode (flat map, no walls) ──
 body.view-2d #view-flat, body.view-2d #wall-scale { display: none !important; }
-.hh-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: @wall-red; }
 
 // Colour chips: a small square of the map colour next to the word that names it (legend bar, map badge)
-.lg-tariff-wrap { position: relative; display: inline-block; width: 70px; height: 10px; flex-shrink: 0; }
+.lg-tariff-wrap { position: relative; display: inline-block; width: 56px; height: 10px; flex-shrink: 0; }
 .lg-chip { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: -0.5px; box-shadow: 0 0 0 0.5px rgba(35,31,32,0.25); flex-shrink: 0; }
 
 // Arc colour key (effective duty rate)
@@ -349,26 +369,15 @@ body.view-2d #view-flat, body.view-2d #wall-scale { display: none !important; }
 .lg-arcrate-wrap .lg-arcrate { position: absolute; top: 2px; left: 0; }
 .lg-arcmid-tick { position: absolute; top: 0; width: 1.5px; height: 9px; background: @ungrey-dark; transform: translateX(-50%); }
 
-// Threshold and N/S filters only matter for the 'All flows' view
-body:not(.flows-all) #threshold-group, body:not(.flows-all) #flow-filter-group { display: none !important; }
+// Flow direction and minimum flow (inside the Display popover) only matter for the 'All flows' view
+body:not(.flows-all) .tb-pop-all { opacity: 0.45; pointer-events: none; }
+body.flows-all .tb-pop-hint { display: none; }
+// 'Arcs shown … of …' only means something once arcs are drawn
+body:not(.flows-arcs) #legend-panel #total-stats { display: none; }
 
 .lg-circle-key { width: 11px !important; height: 11px !important; background: #d9cfc9; border: 1.5px solid #fff; box-shadow: 0 0 0 1px @ungrey-border; }
 .lg-taper { flex-shrink: 0; margin-left: 4px; }
 
-// Landed-cost ladder ($100 + tariff)
-.ld-row .hh-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#analysis-panel .ap-section-head .ap-count { white-space: nowrap; }
-.ap-sub2 { font-size: 9.5px; color: @ungrey-text; margin: -2px 0 6px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.ld-row { display: grid !important; grid-template-columns: minmax(0, 1fr) 120px 46px; gap: 6px; align-items: center; padding: 3px 4px; }
-.ld-row .ld-bar { display: flex; height: 9px; align-items: center; }
-.ld-row .ld-base { width: 45%; height: 7px; background: #8a8079; border-radius: 1px 0 0 1px; }
-.ld-row .ld-duty { height: 9px; background: #d0234f; border-radius: 0 1px 1px 0; min-width: 1px; }
-.ld-row .ld-cost { font-size: 10.5px; font-family: @font-mono; font-weight: 700; color: @wall-dark; text-align: right; }
-#hh-refs { border-bottom: 1px solid @ungrey-border; margin-bottom: 2px; padding-bottom: 2px;
-  .ld-row { font-style: italic; }
-  .hh-name { font-size: 10.5px; color: @ungrey-text; font-weight: 600; }
-  .ld-cost { color: @ungrey-dark; }
-  .ref-low .ld-duty { background: #5aa9dd; } }
 .lbl-step { background: #fff; border: 1px solid rgba(171,29,55,0.45); border-radius: 3px; padding: 1px 5px; font-size: 10.5px;
   font-weight: 700; color: @wall-dark; text-shadow: none; transform: translateY(-14px);
   span { font-weight: 600; color: @ungrey-text; margin-left: 3px; } }

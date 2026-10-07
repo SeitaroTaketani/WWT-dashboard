@@ -7,8 +7,8 @@ import { CONFIG, STATE, fmtPct, fmtUSD, tariffColor, TARIFF_SCALE } from './conf
 import { Data } from './data.js';
 
 const $ = (id) => document.getElementById(id);
-const W = 316, H = 268;
-const M = { top: 26, right: 12, bottom: 34, left: 36 };
+const W = 316, H = 208;
+const M = { top: 26, right: 12, bottom: 38, left: 38 };
 const YMAX = 25;    // tariffs above are drawn at the top edge (▲)
 const YMIN = -1;    // 0 % tariffs float just above the axis instead of sitting on it
 const NAME = (iso) => STATE.countries[iso]?.short || Data.name(iso);
@@ -26,6 +26,7 @@ export const Scatter = {
             const row = e.target.closest('[data-iso]');
             if (row) this.onSelect?.(row.dataset.iso);
         });
+        $('hh-more').addEventListener('click', () => { this._allRows = !this._allRows; this._renderLadder(this.pts, this.b); this.highlight(this._hover || null); });
         $('hh-list').addEventListener('mouseover', (e) => {
             const row = e.target.closest('[data-iso]');
             if (row) { this.onHover?.(row.dataset.iso); this.highlight(row.dataset.iso); }
@@ -112,7 +113,7 @@ export const Scatter = {
             .attr('x', x(b.needHigh)).attr('width', x(100) - x(b.needHigh))
             .attr('y', y(YMAX)).attr('height', ym - y(YMAX));
         svg.append('text').attr('class', 'sc-hh-lbl').attr('x', W - M.right).attr('y', M.top - 9).attr('text-anchor', 'end')
-            .text('High need · high tariff');
+            .text(`High need · high tariff (${pts.filter(p => p.hh).length})`);
         svg.append('line').attr('class', 'sc-median').attr('x1', M.left).attr('x2', W - M.right).attr('y1', ym).attr('y2', ym);
         svg.append('text').attr('class', 'sc-median-lbl').attr('x', M.left + 3).attr('y', ym - 3).text(`median ${fmtPct(TARIFF_SCALE.median)}`);
 
@@ -121,8 +122,8 @@ export const Scatter = {
             .call(d3.axisBottom(x).tickValues([0, 25, 50, 75, 100]).tickFormat(d => d + '%').tickSizeOuter(0));
         svg.append('g').attr('class', 'sc-axis').attr('transform', `translate(${M.left},0)`)
             .call(d3.axisLeft(y).tickValues([0, 5, 10, 15, 20, 25]).tickFormat(d => d + '%').tickSizeOuter(0));
-        svg.append('text').attr('class', 'sc-axis-title').attr('x', (W + M.left) / 2).attr('y', H - 3).attr('text-anchor', 'middle')
-            .text('Population without safely managed drinking water →');
+        svg.append('text').attr('class', 'sc-axis-title').attr('x', W - M.right).attr('y', H - 2).attr('text-anchor', 'end')
+            .text('Population without safely managed water →');
         svg.append('text').attr('class', 'sc-axis-title').attr('x', 2).attr('y', M.top - 9)
             .text(`↑ ${STATE.duty === 'MFN' ? 'MFN' : 'Applied'} tariff`);
 
@@ -146,6 +147,7 @@ export const Scatter = {
         svg.append('g').selectAll('text').data(pts.filter(p => p.tariff > YMAX)).join('text')
             .attr('class', 'sc-over').attr('x', d => x(d.need)).attr('y', M.top + 3).attr('text-anchor', 'middle').text('▲');
         this.labelLayer = svg.append('g').attr('class', 'sc-labels');
+        svg.select('.sc-median-lbl').raise();   // the median label stays readable over the dots
 
         this._renderKey(pts, b, imports);
         this._renderLadder(pts, b);
@@ -158,21 +160,24 @@ export const Scatter = {
         const el = $('ap-insight');
         if (!q) { el.innerHTML = ''; return; }
         const where = STATE.region === 'Global' ? '' : ` (${STATE.region})`;
-        const nums = `median tariff <b>${fmtPct(q.highMedian)}</b> in the highest-need quarter vs <b>${fmtPct(q.lowMedian)}</b> in the lowest${where}`;
-        el.innerHTML = q.highMedian > q.lowMedian * 1.2
-            ? `<b>Where safely managed water is scarcest, tariffs are higher:</b> ${nums}.`
-            : `<b>Tariffs are not clearly higher where need is greatest${where}:</b> ${nums}.`;
+        const measure = STATE.duty === 'MFN' ? 'MFN' : 'Applied';
+        const sub = `Median ${measure} tariff <b>${fmtPct(q.highMedian)}</b> in the highest-need quarter, <b>${fmtPct(q.lowMedian)}</b> in the lowest${where}`;
+        const higher = q.highMedian > q.lowMedian * 1.2;
+        const ratio = q.lowMedian > 0.05 ? `<b>${(q.highMedian / q.lowMedian).toFixed(1)}×</b> higher` : '<b>higher</b>';
+        el.innerHTML = `<p class="ap-lead">${higher
+            ? `Tariffs are ${ratio} where safely managed water is scarcest`
+            : `Tariffs are <b>not clearly higher</b> where need is greatest${where}`}</p><p class="ap-lead-sub">${sub}</p>`;
     },
 
     // Colour/size key, the definition of the group, and which economies cannot be shown
     _renderKey(pts, b, imports) {
-        const t = CONFIG.tariff, ts = TARIFF_SCALE;
-        const grad = `linear-gradient(90deg, ${t.colors.map((c, i) => `${c} ${ts.domain[i] / t.cap * 100}%`).join(', ')})`;
+        const t = CONFIG.tariff;
         const [r0, r1] = this.r.range();
         $('sc-key').innerHTML = `
-            <span class="sc-key-item"><span class="sc-ramp" style="background:${grad}"></span>tariff: blue below, red above the median</span>
+            <span class="sc-key-item"><i class="sc-chip" style="background:${t.colors[0]}"></i>below median</span>
+            <span class="sc-key-item"><i class="sc-chip" style="background:${t.colors[2]}"></i>above median</span>
             <span class="sc-key-item"><svg width="${Math.ceil(r0 * 2 + r1 * 2 + 8)}" height="${Math.ceil(r1 * 2 + 2)}" aria-hidden="true">
-                <circle cx="${r0 + 1}" cy="${r1 + 1}" r="${r0}" class="sc-key-dot"/><circle cx="${r0 * 2 + r1 + 5}" cy="${r1 + 1}" r="${r1}" class="sc-key-dot"/></svg>duties paid</span>`;
+                <circle cx="${r0 + 1}" cy="${r1 + 1}" r="${r0}" class="sc-key-dot"/><circle cx="${r0 * 2 + r1 + 5}" cy="${r1 + 1}" r="${r1}" class="sc-key-dot"/></svg>size = duties paid</span>`;
 
         const inScope = pts.filter(p => p.inScope).length;
         const scopeLine = inScope < pts.length
@@ -182,9 +187,9 @@ export const Scatter = {
         $('analysis-note').innerHTML = `<b>High need · high tariff</b> = at least ${fmtPct(b.needHigh, 0)} of the population without safely managed drinking water (about a majority; the cut-off of the High need switch) and a tariff above the ${fmtPct(b.tariffHigh)} median (red dots). ${nHH} economies; with a stricter tariff cut (top quarter, ${fmtPct(b.tariffTop)} or more), ${nStrict} of them remain.${scopeLine}`;
 
         const big = b.missing.slice().sort((a, c) => (imports[c] || 0) - (imports[a] || 0)).filter(iso => imports[iso]).slice(0, 3).map(NAME);
-        this.missingNote = b.missing.length
-            ? `${b.missing.length} of ${pts.length + b.missing.length} economies with tariff data are not shown: no safely-managed-water estimate${big.length ? ` (largest importers: ${big.join(', ')})` : ''}.`
-            : '';
+        if (b.missing.length) {
+            $('analysis-note').innerHTML += `<br>${b.missing.length} of ${pts.length + b.missing.length} economies with tariff data are not shown: no safely-managed-water estimate${big.length ? ` (largest importers: ${big.join(', ')})` : ''}.`;
+        }
     },
 
     // Landed cost of $100 of equipment: the high need · high tariff group vs reference groups, ranked by tariff
@@ -195,17 +200,21 @@ export const Scatter = {
             { label: 'Lowest-need quarter', tariff: d3.median(lowNeed, p => p.tariff), cls: 'ref-low' },
             { label: 'All economies', tariff: d3.median(pts, p => p.tariff), cls: 'ref-all' },
         ];
+        // Bar = the tariff added to the $100 (the $100 itself is the same for every row, so it is not drawn)
         const maxT = Math.max(15, d3.max(hh, p => p.tariff) || 0);
-        const bar = (tariff) => {
-            const extra = Math.min(tariff, maxT) / maxT * 100;
-            return `<span class="ld-bar"><span class="ld-base"></span><span class="ld-duty" style="width:${(extra * 0.55).toFixed(1)}%"></span></span>`;
-        };
+        const bar = (tariff) => `<span class="ld-bar"><span class="ld-duty" style="width:${(Math.min(tariff, maxT) / maxT * 100).toFixed(1)}%"></span></span>`;
         const cost = (tariff) => `$${(100 + tariff).toFixed(1)}`;
-        $('ladder-measure').textContent = `median ${STATE.duty === 'MFN' ? 'MFN' : 'applied'} tariff of each group, ${Data.productLabel().replace('All 16 WWT-related goods', 'all 16 goods')}`;
-        $('hh-count').textContent = `${hh.length} economies`;
+        $('ladder-measure').textContent = `${STATE.duty === 'MFN' ? 'MFN' : 'applied'} tariff, ${Data.productLabel().replace('All 16 WWT-related goods', 'all 16 goods')}`;
         $('hh-refs').innerHTML = refs.map(rf => `<div class="ld-row ${rf.cls}">
                 <span class="hh-name">${rf.label}</span>${bar(rf.tariff)}<span class="ld-cost">${cost(rf.tariff)}</span></div>`).join('');
-        $('hh-list').innerHTML = hh.length ? hh.map(p => `
+        // First rows only; "All N economies" expands (a focused economy further down always opens the full list)
+        const LIMIT = 5;
+        const all = this._allRows || hh.findIndex(p => p.iso === STATE.focusedIso) >= LIMIT;
+        const shown = all ? hh : hh.slice(0, LIMIT);
+        const more = $('hh-more');
+        more.hidden = hh.length <= LIMIT;
+        more.textContent = all ? 'Show fewer ▴' : `All ${hh.length} economies ▾`;
+        $('hh-list').innerHTML = hh.length ? shown.map(p => `
             <button class="hh-row ld-row" data-iso="${p.iso}" type="button"
                 title="${Data.name(p.iso)} · ${fmtPct(p.need, 0)} without safely managed water · est. duties paid ${STATE.year}: ${fmtUSD(p.duty)} · click to open">
                 <span class="hh-name">${NAME(p.iso)}</span>${bar(p.tariff)}<span class="ld-cost">${cost(p.tariff)}</span>
@@ -243,7 +252,7 @@ export const Scatter = {
         this._tip(iso);
         const focusMissing = focus && STATE.tariffView[focus] && !this.pts.some(p => p.iso === focus);
         const note = $('sc-missing');
-        note.textContent = focusMissing ? `${Data.name(focus)} has no safely-managed-water estimate, so it cannot be placed on this chart.` : (this.missingNote || '');
+        note.textContent = focusMissing ? `${Data.name(focus)} has no safely-managed-water estimate, so it cannot be placed on this chart.` : '';
         note.classList.toggle('focus', !!focusMissing);
 
         document.querySelectorAll('#hh-list .hh-row').forEach(rw => {

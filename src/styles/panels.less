@@ -9,7 +9,7 @@
   flex-direction: row;
   align-items: center;
   overflow: hidden;
-  min-height: 38px;
+  min-height: 40px;
 
   // Mobile: hidden as bar; appears as fixed floating card via mobile.less
   .legend-mobile-header {
@@ -61,28 +61,16 @@
     flex-direction: row;
     align-items: center;
     gap: 10px;
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-left: 1px solid @ungrey-border;
     flex-shrink: 0;
+    gap: 5px;
+    white-space: nowrap;
 
-    .stat-row {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
-      margin-bottom: 0;
-
-      .stat-label   { font-size: 8px; color: @ungrey-text; }
-      .stat-val     { font-size: 11px; font-weight: 700; color: @ungrey-dark; font-family: @font-mono; }
-      .stat-secondary { font-size: 10px; color: @ungrey-text; font-family: @font-mono; }
-    }
-
-    #stat-coverage {
-      font-size: 9px;
-      color: @ungrey-text;
-      font-family: @font-mono;
-      white-space: nowrap;
-    }
+    .stat-label     { font-size: 11px; color: @ungrey-text; }
+    .stat-val       { font-size: 12px; font-weight: 700; color: @ungrey-dark; font-family: @font-mono; }
+    .stat-secondary { font-size: 12px; color: @ungrey-text; font-family: @font-mono; }
+    #stat-coverage  { font-size: 11px; color: @ungrey-text; font-family: @font-mono; }
   }
 
   // SMEP logo (far right)
@@ -116,11 +104,9 @@
 }
 
 .legend-section-label {
-  font-size: 8px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: @ungrey-text;
+  font-size: 11px;
+  font-weight: 600;
+  color: @ungrey-dark;
   white-space: nowrap;
   margin-right: 2px;
 }
@@ -149,14 +135,14 @@
 }
 
 .legend-flow-label {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   color: @ungrey-dark;
   font-family: @font-mono;
 }
 
 .legend-flow-stat {
-  font-size: 9px;
+  font-size: 11px;
   color: @ungrey-text;
   font-family: @font-mono;
 }
@@ -176,7 +162,7 @@
 }
 
 .legend-nodes-hint {
-  font-size: 8px;
+  font-size: 11px;
   color: @ungrey-text;
   font-family: @font-mono;
   white-space: nowrap;
@@ -189,7 +175,7 @@
 }
 
 .legend-threshold-badge {
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   background: @unblue-bg;
   color: @unblue-dark;
@@ -206,14 +192,14 @@
 }
 
 .legend-threshold-val {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   color: @ungrey-dark;
   font-family: @font-mono;
 }
 
 .legend-arc-count {
-  font-size: 8px;
+  font-size: 11px;
   color: @ungrey-text;
   font-family: @font-mono;
 }

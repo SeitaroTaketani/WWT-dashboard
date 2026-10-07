@@ -112,6 +112,10 @@ const App = {
         document.querySelectorAll('.flowview-btn').forEach(b => b.classList.toggle('active', b.dataset.flowview === STATE.flowView));
         // Threshold and N/S direction filters only apply to the 'All flows' view
         document.body.classList.toggle('flows-all', STATE.flowView === 'all');
+        document.body.classList.toggle('flows-arcs', STATE.flowView !== 'importers');
+        document.querySelectorAll('.tb-pop-all').forEach(el => { el.inert = STATE.flowView !== 'all'; });
+        $('need-high').checked = STATE.importerNeed === 'high';
+        $('display-summary').textContent = `${STATE.flowMetric === 'duty' ? 'Duties' : 'Trade'} · ${STATE.arcColor === 'rate' ? 'duty rate' : 'N/S'}`;
         // Threshold buttons are defined in trade-value terms and scaled for duties
         document.querySelectorAll('.threshold-btn').forEach(b => {
             if (b.dataset.threshold === 'auto') return;
@@ -167,10 +171,20 @@ const App = {
             STATE.importerNeed = b.dataset.need;
             this.update({ walls: false });
         }));
+        $('need-high').addEventListener('change', (e) => {
+            STATE.importerNeed = e.target.checked ? 'high' : 'all';
+            this.update({ walls: false });
+        });
         document.querySelectorAll('.threshold-btn').forEach(b => b.addEventListener('click', () => {
             STATE.thresholdMode = b.dataset.threshold === 'auto' ? 'auto' : +b.dataset.threshold;
             this.update({ walls: false });
         }));
+
+        // Display popover (circle size, arc colour, flow direction, minimum flow)
+        const dpop = $('display-pop'), dbtn = $('display-btn');
+        const setDisplay = (open) => { dpop.classList.toggle('hidden', !open); dbtn.setAttribute('aria-expanded', String(open)); };
+        dbtn.addEventListener('click', (e) => { e.stopPropagation(); setDisplay(dpop.classList.contains('hidden')); });
+        document.addEventListener('click', (e) => { if (!dpop.contains(e.target) && !dbtn.contains(e.target)) setDisplay(false); });
         document.querySelectorAll('.flow-checkbox').forEach(cb => cb.addEventListener('change', () => {
             if (cb.checked) STATE.flowFilters.add(cb.value); else STATE.flowFilters.delete(cb.value);
             this.update({ walls: false });
@@ -225,6 +239,7 @@ const App = {
         document.addEventListener('keydown', (e) => {
             if (e.key !== 'Escape') return;
             mm.classList.add('hidden');
+            setDisplay(false);
             if (STATE.focusedIso) this.focusCountry(null);
         });
 
@@ -424,7 +439,7 @@ const App = {
         const shown = flows.length ? d3.sum(flows, d => Data.mv(d)) : STATE.totalScope;
         $('stat-value').textContent = fmtUSD(shown);
         $('stat-bilateral').textContent = fmtUSD(STATE.totalScope);
-        $('stat-coverage').textContent = STATE.totalScope ? `${(shown / STATE.totalScope * 100).toFixed(1)}% shown` : '';
+        $('stat-coverage').textContent = STATE.totalScope ? `${(shown / STATE.totalScope * 100).toFixed(1)}%` : '';
     },
 
     // Arc colour key for the effective duty rate + width note
@@ -465,6 +480,11 @@ const App = {
         $('kpi-total').textContent = STATE.filteredFlows.length ? fmtUSD(d3.sum(STATE.filteredFlows, d => Data.mv(d))) : fmtUSD(STATE.scopeDuty || 0);
         $('kpi-flows').textContent = STATE.filteredFlows.length;
         $('kpi-duty').textContent = fmtUSD(STATE.scopeDuty || 0);
+        // Importer view: the arcs figure would repeat the duties figure, so it is hidden and the importer count joins the duties label
+        const noArcs = !STATE.filteredFlows.length;
+        const nPayers = Object.values(STATE.importerStats || {}).filter(s => s.duty > 0).length;
+        $('kpi-duty-label').textContent = noArcs ? `Est. duties paid · ${nPayers} importers` : 'Est. duties paid';
+        $('kpi-total-item').style.display = $('kpi-total-div').style.display = noArcs ? 'none' : '';
         $('kpi-duty-high').textContent = fmtUSD(Data.dutyHighNeed());
         // Same definition as the arc-colour midpoint: corridors whose importer has tariff data
         $('kpi-duty-rate').textContent = STATE.scopeValueKnown ? fmtPct(STATE.scopeDuty / STATE.scopeValueKnown * 100, 2) : '—';

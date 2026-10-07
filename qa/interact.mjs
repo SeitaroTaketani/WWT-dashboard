@@ -88,10 +88,10 @@ await page.waitForFunction(() => location.hash.includes('y=2012'), null, { timeo
 console.log('     year switch took', Date.now() - t0y, 'ms');
 ok(page.url().includes('y=2012'), 'year select: ' + page.url().split('#')[1]);
 
-await page.click('#need-group [data-need="high"]');
+await page.check('#need-high');
 await page.waitForTimeout(600);
 ok(page.url().includes('n=high') && /high-need/.test(await page.textContent('#kpi-scope')), 'high-need importer switch');
-await page.click('#need-group [data-need="all"]');
+await page.uncheck('#need-high');
 
 // Picker: choose Kenya as importer
 await page.click('#region-group [data-region="Global"]');
@@ -161,6 +161,7 @@ await page.waitForTimeout(1200);
 ok(page.url().includes('v=2d') && !(await page.isVisible('#wall-scale')) && /colour = tariff/.test(await page.textContent('#legend-content')), '2D view: no wall ruler, circle colour = tariff in the legend');
 const circleCols = await page.evaluate(() => new Set(window.Map3D.nodeGroup.children.filter(m => m.userData.iso).map(m => m.material.color.getHexString())).size);
 ok(circleCols > 1, `2D circles are coloured by tariff (${circleCols} distinct colours)`);
+await page.click('#display-btn');   // size / arc colour live in the Display popover
 await page.click('#metric-group [data-metric="value"]');
 await page.waitForTimeout(500);
 ok(page.url().includes('m=value') && /size = trade/.test(await page.textContent('#legend-content')), 'size metric switches to trade value');
@@ -171,8 +172,10 @@ ok(page.url().includes('k=ns') && await page.isVisible('.legend-flows'), 'arc co
 await page.click('#arccolor-group [data-arccolor="rate"]');
 await page.waitForTimeout(400);
 ok(await page.isVisible('.lg-arcrate'), 'arc colour = duty rate legend');
+ok(/Duties · duty rate/.test(await page.textContent('#display-summary')), 'Display button summarises the settings');
 await page.click('#view-group [data-view="3d"]');
 await page.waitForTimeout(1000);
+ok(!(await page.isVisible('#display-pop')), 'Display popover closes on an outside click');
 
 // PNG map export
 await page.click('#export-btn');
@@ -216,7 +219,7 @@ await page.waitForTimeout(800);
 
 // Analysis panel (global, all goods, MFN): headline, tooltip, threshold shared with the High need switch, missing-data explanation
 const insight = await page.textContent('#ap-insight');
-ok(/Where safely managed water is scarcest/.test(insight) && /6\.4%/.test(insight) && /1\.2%/.test(insight), 'panel headline states the finding (6.4% vs 1.2%)');
+ok(/higher where safely managed water is scarcest/.test(insight) && /5\.2×/.test(insight) && /6\.4%/.test(insight) && /1\.2%/.test(insight), 'panel headline states the finding (6.4% vs 1.2%)');
 ok(/at least 52%/.test(await page.textContent('#analysis-note')), 'high need threshold = the High need switch cut-off (52%)');
 const hit = await page.locator('.sc-hit[aria-label^="Ethiopia"]').first().boundingBox();
 await page.mouse.move(hit.x + hit.width / 2, hit.y + hit.height / 2);

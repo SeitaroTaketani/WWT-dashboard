@@ -125,23 +125,23 @@
     // Mobile: show close button
     .legend-mobile-header { display: flex !important; }
 
-    // Mobile: revert content to vertical layout
+    // Mobile: revert content to vertical layout; items wrap inside a section instead of clipping
     #legend-content {
       flex-direction: column !important;
+      align-items: stretch !important;
       padding: 12px !important;
       overflow-y: auto !important;
     }
+    .legend-section { flex-wrap: wrap; row-gap: 4px; }
 
-    // Mobile: stats vertical
+    // Mobile: stats wrap under the legend
     #total-stats {
-      flex-direction: column !important;
-      align-items: flex-start !important;
+      flex-wrap: wrap !important;
+      align-items: baseline !important;
       padding: 10px 12px !important;
       border-left: none !important;
       border-top: 1px solid @ungrey-bg !important;
-      gap: 4px !important;
-
-      .stat-row { flex-direction: row !important; justify-content: space-between; width: 100%; }
+      gap: 4px 5px !important;
     }
 
     // Mobile: footer bottom

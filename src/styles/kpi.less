@@ -3,7 +3,7 @@
 #kpi-bar {
   background: rgba(255,255,255,0.97);
   border-bottom: 1px solid rgba(203,213,224,0.9);
-  padding: 6px 16px;
+  padding: 7px 16px;
   z-index: 20;
   flex-shrink: 0;
   transition: all 0.3s ease;
@@ -13,7 +13,7 @@
     margin: 0 auto;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 6px 18px;
     flex-wrap: nowrap;
     overflow-x: auto;
     justify-content: flex-start;
@@ -31,22 +31,22 @@
     &.kpi-item-col {
       flex-direction: column;
       align-items: flex-start;
-      gap: 0;
+      gap: 1px;
     }
   }
 
+  // Plain-sentence labels, values one step larger; the three tariff figures (the message) larger still
   .kpi-label {
-    font-size: var(--fs-micro);
+    font-size: 11px;
     color: @ungrey-text;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.05em;
+    font-weight: 500;
   }
 
   .kpi-value {
-    font-size: var(--fs-sm);
+    font-size: 15px;
     font-weight: 700;
     font-family: @font-mono;
+    line-height: 1.25;
     color: @ungrey-dark;
     transition: color 0.3s ease;
 
@@ -59,9 +59,11 @@
     &.kpi-value-ss  { color: var(--un-color-yellow); }
   }
 
+  .kpi-lead .kpi-value { font-size: 18px; }
+
   .kpi-divider {
     width: 1px;
-    height: 16px;
+    height: 28px;
     background: @ungrey-border;
     flex-shrink: 0;
   }
