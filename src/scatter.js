@@ -31,7 +31,21 @@ export const Scatter = {
             if (row) { this.onHover?.(row.dataset.iso); this.highlight(row.dataset.iso); }
         });
         $('hh-list').addEventListener('mouseleave', () => { this.onHover?.(null); this.highlight(null); });
+        this._initNamesSwitch();
         this._initResizer();
+    },
+
+    // "Show names": off by default (the chart starts uncluttered); on = name the three largest duty payers of the group.
+    // The hovered economy always gets the tooltip and the focused one always keeps its name.
+    _initNamesSwitch() {
+        const box = $('sc-names'), KEY = 'wwt.showNames';
+        try { this.showNames = localStorage.getItem(KEY) === '1'; } catch { this.showNames = false; }
+        box.checked = this.showNames;
+        box.addEventListener('change', () => {
+            this.showNames = box.checked;
+            try { localStorage.setItem(KEY, this.showNames ? '1' : '0'); } catch { /* storage unavailable */ }
+            this.highlight(this._hover || null);
+        });
     },
 
     // Drag the panel edge to resize the chart (keyboard: arrows, Home resets; double-click resets). The width is remembered.
@@ -199,7 +213,7 @@ export const Scatter = {
     },
 
     // Map ↔ chart: emphasis ring and tooltip for the hovered economy, persistent ring + name for the focused one,
-    // names for the biggest high need · high tariff economies
+    // optionally names for the biggest high need · high tariff economies
     highlight(iso) {
         this._hover = iso;
         if (!this.dots) return;
@@ -207,7 +221,7 @@ export const Scatter = {
         this.dots.classed('hover', d => d.iso === iso).classed('focus', d => d.iso === focus);
         this.dots.filter(d => d.iso === iso || d.iso === focus).raise();
 
-        // Labels: the focused economy first, then the five biggest in-scope high need · high tariff economies that still fit
+        // Labels: the focused economy always; with "Show names" also the three biggest in-scope high need · high tariff economies that fit
         const taken = [];
         const items = [];
         const add = (p, force) => {
@@ -222,7 +236,7 @@ export const Scatter = {
             items.push({ p, x: x0, y: this.yOf(p) + 3.5, text });
         };
         add(this.pts.find(p => p.iso === focus), true);
-        this.pts.filter(p => p.hh && p.inScope).sort((a, c) => c.duty - a.duty).slice(0, 5).forEach(p => add(p, false));
+        if (this.showNames) this.pts.filter(p => p.hh && p.inScope).sort((a, c) => c.duty - a.duty).slice(0, 3).forEach(p => add(p, false));
         this.labelLayer.selectAll('text').data(items, d => d.p.iso).join('text')
             .attr('x', d => d.x).attr('y', d => d.y).text(d => d.text);
 

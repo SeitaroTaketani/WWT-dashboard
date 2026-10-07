@@ -312,7 +312,10 @@ body.ap-resizing { user-select: none; cursor: col-resize; }
 }
 .ap-insight { font-size: 12px; line-height: 1.4; color: @ungrey-dark; margin: 2px 0 4px;
   b:first-child { color: @unblue-dark; } }
-.sc-key { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 9.5px; color: @ungrey-text; margin: 2px 0 6px; }
+.sc-keyrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin: 2px 0 6px; }
+.sc-key { flex: 1; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 9.5px; color: @ungrey-text; }
+.sc-switch { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; color: @ungrey-text; cursor: pointer; user-select: none;
+  input { margin: 0; accent-color: @unblue; cursor: pointer; } }
 .sc-key-item { display: inline-flex; align-items: center; gap: 5px; }
 .sc-ramp { display: inline-block; width: 44px; height: 7px; border-radius: 2px; box-shadow: 0 0 0 0.5px rgba(35,31,32,0.25); }
 .sc-key-dot { fill: #d9cfc9; stroke: @ungrey-text; stroke-width: 0.8; }
